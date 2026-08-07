@@ -1,3 +1,4 @@
+import { sortPlayersForStandings } from '../domain/endgame'
 import type { GameState } from '../domain/model'
 
 interface VictoryOverlayProps {
@@ -8,7 +9,8 @@ interface VictoryOverlayProps {
 export default function VictoryOverlay({ state, restart }: VictoryOverlayProps) {
   if (state.phase !== 'finished') return null
 
-  const winners = state.players.filter((player) => state.winnerIds.includes(player.id))
+  const standings = sortPlayersForStandings(state.players)
+  const winners = standings.filter((player) => state.winnerIds.includes(player.id))
   const reason =
     winners.length > 1
       ? '积分相同且购买卡数量相同，本局为并列冠军。'
@@ -34,7 +36,7 @@ export default function VictoryOverlay({ state, restart }: VictoryOverlayProps) 
             <span role="columnheader">积分</span>
             <span role="columnheader">已购卡</span>
           </div>
-          {state.players.map((player) => (
+          {standings.map((player) => (
             <div className="standings-table__row" role="row" key={player.id}>
               <span role="cell">
                 {player.name}

@@ -6,13 +6,17 @@ export interface GameEndResult {
   finalRoundStartIndex: number | null
 }
 
-function getWinnerIds(state: GameState): PlayerId[] {
-  const ranking = [...state.players].sort((left, right) => {
+export function sortPlayersForStandings(players: GameState['players']) {
+  return [...players].sort((left, right) => {
     const pointsDifference = right.points - left.points
     if (pointsDifference !== 0) return pointsDifference
 
     return left.purchasedCards.length - right.purchasedCards.length
   })
+}
+
+function getWinnerIds(state: GameState): PlayerId[] {
+  const ranking = sortPlayersForStandings(state.players)
   const topPlayer = ranking[0]
 
   if (!topPlayer) return []

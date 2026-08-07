@@ -6,6 +6,7 @@ import MarketBoard from './MarketBoard'
 import NoblePanel from './NoblePanel'
 import PlayerRail from './PlayerRail'
 import RulesModal from './RulesModal'
+import TeamPanel from './TeamPanel'
 import VictoryOverlay from './VictoryOverlay'
 
 export interface GameShellProps {
@@ -24,6 +25,7 @@ export default function GameShell({ seed, initialState }: GameShellProps) {
   const [rulesOpen, setRulesOpen] = useState(false)
   const { state, selectedCardId, lastError, pendingNobleIds } = session
   const currentPlayer = state.players[state.currentPlayerIndex]
+  const humanPlayer = state.players.find((player) => player.isHuman)
   const humanTurn = currentPlayer?.isHuman ?? false
   const tableLocked = state.phase === 'finished' || pendingNobleIds.length > 0 || !humanTurn
 
@@ -76,6 +78,7 @@ export default function GameShell({ seed, initialState }: GameShellProps) {
               disabled={tableLocked}
             />
             <NoblePanel state={state} claimNoble={session.claimNoble} />
+            {humanPlayer ? <TeamPanel player={humanPlayer} /> : null}
             <section className="event-log" role="region" aria-labelledby="event-log-heading">
               <div className="section-heading section-heading--compact">
                 <div>

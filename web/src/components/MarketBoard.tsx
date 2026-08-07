@@ -9,7 +9,7 @@ interface MarketBoardProps {
   disabled?: boolean
 }
 
-const TIERS: Tier[] = [1, 2, 3]
+const TIERS: Tier[] = [3, 2, 1]
 
 export default function MarketBoard({
   state,

@@ -226,7 +226,8 @@
 .market-board,
 .noble-panel,
 .action-panel,
-.event-log {
+.event-log,
+.team-panel {
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   background: rgba(11, 23, 41, 0.86);
@@ -754,6 +755,176 @@
 .noble-panel {
   overflow: hidden;
   background: rgba(18, 32, 45, 0.9);
+}
+
+.team-panel {
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(13, 39, 52, 0.92), rgba(11, 23, 41, 0.92));
+}
+
+.section-heading--team {
+  border-bottom-color: rgba(81, 208, 192, 0.25);
+}
+
+.team-panel__count {
+  color: var(--teal-0);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.team-panel__content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(175px, 205px);
+  gap: 12px;
+  padding: 12px;
+}
+
+.purchased-card-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+  gap: 7px;
+  align-content: start;
+}
+
+.purchased-card {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  gap: 7px;
+  align-items: center;
+  min-width: 0;
+  padding: 7px;
+  border: 1px solid rgba(81, 208, 192, 0.18);
+  border-radius: 8px;
+  background: rgba(22, 45, 69, 0.46);
+}
+
+.purchased-card__art {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(81, 208, 192, 0.25);
+  border-radius: 6px;
+  background: radial-gradient(circle, rgba(81, 208, 192, 0.36), rgba(16, 63, 80, 0.3));
+}
+
+.purchased-card__art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.purchased-card__art span {
+  padding: 3px;
+  color: var(--teal-0);
+  font-family: var(--font-mono);
+  font-size: 7px;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.purchased-card__details {
+  min-width: 0;
+}
+
+.purchased-card h3 {
+  margin: 0;
+  overflow: hidden;
+  color: var(--ink-0);
+  font-family: var(--font-display);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.purchased-card__details span {
+  display: block;
+  margin-top: 4px;
+  color: var(--ink-3);
+  font-size: 9px;
+}
+
+.purchased-card > strong {
+  color: var(--amber-0);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.team-panel__empty {
+  margin: 0;
+  color: var(--ink-3);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.bonus-track {
+  padding: 10px;
+  border: 1px solid rgba(248, 199, 103, 0.2);
+  border-radius: var(--radius-md);
+  background: rgba(92, 59, 28, 0.16);
+}
+
+.bonus-track__heading {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(248, 199, 103, 0.14);
+}
+
+.bonus-track__heading > span:last-child {
+  color: var(--ink-3);
+  font-size: 9px;
+}
+
+.bonus-track__grid {
+  display: grid;
+  gap: 5px;
+  margin-top: 9px;
+}
+
+.bonus-count {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--ink-1);
+  font-size: 10px;
+}
+
+.bonus-count .token-dot {
+  width: 8px;
+  height: 8px;
+}
+
+.bonus-count--fire .token-dot {
+  background: #e66b52;
+}
+
+.bonus-count--water .token-dot {
+  background: #55aee8;
+}
+
+.bonus-count--grass .token-dot {
+  background: #65bd76;
+}
+
+.bonus-count--electric .token-dot {
+  background: #e9c94d;
+}
+
+.bonus-count--psychic .token-dot {
+  background: #b78adb;
+}
+
+.bonus-count span:last-child {
+  color: var(--ink-0);
+  font-family: var(--font-mono);
+  font-size: 10px;
 }
 
 .noble-grid {
@@ -1575,6 +1746,10 @@
 
   .table-center {
     width: 100%;
+  }
+
+  .team-panel__content {
+    grid-template-columns: 1fr;
   }
 
   .market-grid {

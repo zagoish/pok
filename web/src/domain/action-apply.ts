@@ -1,30 +1,15 @@
 import { CARDS } from '../data/cards'
 import { addTokens, subtractTokens, zeroTokenInventory } from './inventory'
+import { getPaymentBreakdown } from './payment'
 import {
-  STANDARD_TOKEN_COLORS,
   type Action,
-  type Card,
   type GameState,
-  type PlayerState,
   type RuleResult,
   type Tier,
-  type TokenInventory,
 } from './model'
 import { validateAction } from './action-legality'
 import { claimNoble, getEligibleNobles, selectNobleForComputer } from './nobles'
 import { resolveGameEnd, startFinalRound } from './endgame'
-
-function calculatePayment(card: Card, player: PlayerState): TokenInventory {
-  const payment = zeroTokenInventory()
-
-  for (const color of STANDARD_TOKEN_COLORS) {
-    const remainingCost = Math.max(0, card.cost[color] - player.bonuses[color])
-    payment[color] = Math.min(player.tokens[color], remainingCost)
-    payment.rainbow += remainingCost - payment[color]
-  }
-
-  return payment
-}
 
 function removeFromMarketAndRefill(
   market: GameState['market'],
@@ -102,7 +87,7 @@ export function applyAction(state: GameState, action: Action): RuleResult<GameSt
       }
     }
 
-    const payment = calculatePayment(card, currentPlayer)
+    const payment = getPaymentBreakdown(card, currentPlayer).payment
     tokenBank = addTokens(state.tokenBank, payment)
     players[state.currentPlayerIndex] = {
       ...currentPlayer,

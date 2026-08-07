@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { expect, test } from 'vitest'
 import App from '../App'
@@ -7,6 +7,7 @@ import { NOBLES } from '../data/nobles'
 import { createInitialGame } from '../domain/setup'
 import { zeroTokenInventory } from '../domain/inventory'
 import type { GameState } from '../domain/model'
+import CardView from './CardView'
 
 function cardFor(state: GameState, tier: 1 | 2 | 3) {
   const cardId = state.market[tier][0]
@@ -58,6 +59,52 @@ function createFinishedState(): GameState {
   return state
 }
 
+function createShuffledFinishedState(): GameState {
+  const state = structuredClone(createInitialGame(123))
+  state.phase = 'finished'
+  state.players = [state.players[2], state.players[0], state.players[3], state.players[1]]
+  state.players[0] = {
+    ...state.players[0],
+    points: 5,
+    purchasedCards: Array.from({ length: 4 }, () => 'tier-1-001'),
+  }
+  state.players[1] = {
+    ...state.players[1],
+    points: 10,
+    purchasedCards: ['tier-1-001', 'tier-1-002'],
+  }
+  state.players[2] = {
+    ...state.players[2],
+    points: 10,
+    purchasedCards: ['tier-1-003'],
+  }
+  state.players[3] = { ...state.players[3], points: 5, purchasedCards: [] }
+  state.currentPlayerIndex = 0
+  state.winnerIds = ['ai-3']
+  return state
+}
+
+function createAiTurnState(): GameState {
+  const state = structuredClone(createInitialGame(123))
+  state.currentPlayerIndex = 1
+  return state
+}
+
+function createIllegalTokenState(): GameState {
+  const state = structuredClone(createInitialGame(123))
+  state.tokenBank = { ...state.tokenBank, fire: 0, water: 0, grass: 0 }
+  return state
+}
+
+function createReserveLimitState(): GameState {
+  const state = structuredClone(createInitialGame(123))
+  state.players[0] = {
+    ...state.players[0],
+    reservedCards: ['tier-2-001', 'tier-2-002', 'tier-2-003'],
+  }
+  return state
+}
+
 test('exposes the title and the three named table regions', () => {
   render(<App seed={123} />)
 
@@ -65,6 +112,16 @@ test('exposes the title and the three named table regions', () => {
   expect(screen.getByRole('region', { name: '野外市场' })).toBeInTheDocument()
   expect(screen.getByRole('region', { name: '训练家进度' })).toBeInTheDocument()
   expect(screen.getByRole('region', { name: '你的行动' })).toBeInTheDocument()
+  expect(screen.getByRole('region', { name: '你的队伍' })).toBeInTheDocument()
+})
+
+test('renders market tiers in approved A order from tier 3 down to tier 1', () => {
+  render(<App seed={123} />)
+
+  const market = screen.getByRole('region', { name: '野外市场' })
+  const tierHeadings = within(market).getAllByRole('heading', { level: 3 })
+
+  expect(tierHeadings.map((heading) => heading.textContent)).toEqual(['等级 3', '等级 2', '等级 1'])
 })
 
 test('selecting a market card changes its pressed state and the selected information', async () => {
@@ -147,6 +204,50 @@ test('does not dispatch an illegal buy action and keeps it disabled', async () =
   expect(screen.queryByRole('alert')).not.toBeInTheDocument()
 })
 
+test('falls back to the image key when a card image cannot load', () => {
+  const card = { ...CARDS[0], imageKey: 'missing-pokemon-art' }
+  const { container } = render(<CardView card={card} selected={false} selectCard={() => undefined} />)
+  const image = container.querySelector('img')
+
+  if (!image) throw new Error('Expected a card image')
+  fireEvent.error(image)
+
+  expect(screen.getByText('missing-pokemon-art')).toBeInTheDocument()
+})
+
+test('shows the AI-thinking indicator and locks human controls during an AI turn', () => {
+  render(<App initialState={createAiTurnState()} />)
+
+  expect(within(screen.getByRole('region', { name: '你的行动' })).getByText(/电脑行动中 · 小智/)).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: /拿取.*火.*水.*草/ })).toBeDisabled()
+})
+
+test('does not dispatch an illegal token action when the bank lacks one requested color', async () => {
+  const user = userEvent.setup()
+  render(<App initialState={createIllegalTokenState()} />)
+
+  const actionButton = screen.getByRole('button', { name: /拿取.*火.*水.*草/ })
+  expect(actionButton).toBeDisabled()
+  await user.click(actionButton)
+
+  expect(within(screen.getByRole('region', { name: '对局记录' })).getByText(/第一枚宝石/)).toBeInTheDocument()
+})
+
+test('does not dispatch an illegal reserve action after reaching the reserve limit', async () => {
+  const user = userEvent.setup()
+  const state = createReserveLimitState()
+  const card = cardFor(state, 1)
+
+  render(<App initialState={state} />)
+  await user.click(screen.getByRole('button', { name: new RegExp(card.name) }))
+
+  const reserveButton = screen.getByRole('button', { name: new RegExp(`预留.*${card.name}`) })
+  expect(reserveButton).toBeDisabled()
+  await user.click(reserveButton)
+
+  expect(within(screen.getByRole('region', { name: '对局记录' })).getByText(/第一枚宝石/)).toBeInTheDocument()
+})
+
 test('opens and closes the rules dialog with Escape', async () => {
   const user = userEvent.setup()
   render(<App seed={123} />)
@@ -191,4 +292,33 @@ test('renders the finished victory overlay and restarts the session', async () =
   await user.click(within(overlay).getByRole('button', { name: '再开一局' }))
 
   expect(screen.queryByRole('dialog', { name: '联赛结算' })).not.toBeInTheDocument()
+})
+
+test('renders finished standings sorted by points, then fewer purchased cards', () => {
+  render(<App initialState={createShuffledFinishedState()} />)
+
+  const overlay = screen.getByRole('dialog', { name: '联赛结算' })
+  const rows = within(overlay).getAllByRole('row').slice(1)
+  const names = rows.map((row) => within(row).getAllByRole('cell')[0].textContent?.replace('冠军', '').trim())
+
+  expect(names).toEqual(['小刚', '玩家', '小智', '小霞'])
+})
+
+test('shows the human purchased Pokemon cards and all five permanent bonus counts', () => {
+  const state = structuredClone(createInitialGame(123))
+  state.players[0] = {
+    ...state.players[0],
+    purchasedCards: ['tier-1-001'],
+    bonuses: { fire: 1, water: 2, grass: 3, electric: 4, psychic: 5 },
+  }
+
+  render(<App initialState={state} />)
+
+  const team = screen.getByRole('region', { name: '你的队伍' })
+  expect(within(team).getByText('Bulbasaur')).toBeInTheDocument()
+  expect(within(team).getByText(/火.*1/)).toBeInTheDocument()
+  expect(within(team).getByText(/水.*2/)).toBeInTheDocument()
+  expect(within(team).getByText(/草.*3/)).toBeInTheDocument()
+  expect(within(team).getByText(/电.*4/)).toBeInTheDocument()
+  expect(within(team).getByText(/超能.*5/)).toBeInTheDocument()
 })

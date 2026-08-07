@@ -1,8 +1,8 @@
 import { CARDS } from '../data/cards'
 import { getLegalActions } from '../domain/action-legality'
 import { totalTokens } from '../domain/inventory'
+import { getPaymentBreakdown } from '../domain/payment'
 import {
-  STANDARD_TOKEN_COLORS,
   type Action,
   type Card,
   type GameState,
@@ -52,19 +52,6 @@ function findSelectedCard(selectedCardId: string | null): Card | undefined {
   return CARDS.find((card) => card.id === selectedCardId)
 }
 
-function paymentRows(card: Card, player: GameState['players'][number]) {
-  let rainbowPayment = 0
-
-  const rows = STANDARD_TOKEN_COLORS.filter((color) => card.cost[color] > 0).map((color) => {
-    const afterBonus = Math.max(0, card.cost[color] - player.bonuses[color])
-    const tokenPayment = Math.min(player.tokens[color], afterBonus)
-    rainbowPayment += afterBonus - tokenPayment
-    return { color, total: card.cost[color], tokenPayment, afterBonus }
-  })
-
-  return { rows, rainbowPayment }
-}
-
 function TokenPill({ color, count }: { color: StandardTokenColor | 'rainbow'; count: number }) {
   const label = color === 'rainbow' ? '万能' : COLOR_LABELS[color]
   return (
@@ -95,7 +82,7 @@ export default function ActionPanel({
   const selectedReserveAction = selectedCard && source === 'market'
     ? ({ type: 'reserve-card', playerId: 'human', cardId: selectedCard.id, tier: selectedCard.tier } satisfies Action)
     : undefined
-  const payment = selectedCard && human ? paymentRows(selectedCard, human) : undefined
+  const payment = selectedCard && human ? getPaymentBreakdown(selectedCard, human) : undefined
 
   return (
     <section className="action-panel" role="region" aria-labelledby="action-heading">
