@@ -252,12 +252,12 @@ test('renders a bank group with all six colors and their bank counts', () => {
   renderPanel(state)
 
   const bank = screen.getByRole('group', { name: /银行/ })
-  expect(within(bank).getByLabelText(bankLabel('fire', 2, 4))).toBeInTheDocument()
-  expect(within(bank).getByLabelText(bankLabel('water', 1, 0))).toBeInTheDocument()
-  expect(within(bank).getByLabelText(bankLabel('grass', 0, 7))).toBeInTheDocument()
-  expect(within(bank).getByLabelText(bankLabel('electric', 0, 7))).toBeInTheDocument()
-  expect(within(bank).getByLabelText(bankLabel('psychic', 0, 7))).toBeInTheDocument()
-  expect(within(bank).getByLabelText(bankLabel('rainbow', 0, 5))).toBeInTheDocument()
+  expect(within(bank).getByRole('img', { name: bankLabel('fire', 2, 4) })).toBeInTheDocument()
+  expect(within(bank).getByRole('img', { name: bankLabel('water', 1, 0) })).toBeInTheDocument()
+  expect(within(bank).getByRole('img', { name: bankLabel('grass', 0, 7) })).toBeInTheDocument()
+  expect(within(bank).getByRole('img', { name: bankLabel('electric', 0, 7) })).toBeInTheDocument()
+  expect(within(bank).getByRole('img', { name: bankLabel('psychic', 0, 7) })).toBeInTheDocument()
+  expect(within(bank).getByRole('img', { name: bankLabel('rainbow', 0, 5) })).toBeInTheDocument()
   expect(within(bank).queryAllByRole('button')).toHaveLength(0)
 })
 
@@ -267,9 +267,9 @@ test('bank stacks are display-only: clicking them changes nothing and shows no h
   renderPanel(createInitialGame(123), dispatch)
 
   const bank = screen.getByRole('group', { name: /银行/ })
-  await user.click(within(bank).getByLabelText(bankLabel('fire', 0, 7)))
-  await user.click(within(bank).getByLabelText(bankLabel('water', 0, 7)))
-  await user.click(within(bank).getByLabelText(bankLabel('fire', 0, 7)))
+  await user.click(within(bank).getByRole('img', { name: bankLabel('fire', 0, 7) }))
+  await user.click(within(bank).getByRole('img', { name: bankLabel('water', 0, 7) }))
+  await user.click(within(bank).getByRole('img', { name: bankLabel('fire', 0, 7) }))
 
   expect(screen.queryByRole('button', { name: /移除/ })).not.toBeInTheDocument()
   expect(screen.queryByRole('button', { name: '执行拿取' })).not.toBeInTheDocument()
@@ -283,7 +283,7 @@ test('held stacks still form a selection after interacting with the bank group',
   renderPanel(createInitialGame(123))
 
   const bank = screen.getByRole('group', { name: /银行/ })
-  await user.click(within(bank).getByLabelText(bankLabel('fire', 0, 7)))
+  await user.click(within(bank).getByRole('img', { name: bankLabel('fire', 0, 7) }))
 
   await user.click(screen.getByRole('button', { name: stackName('fire', 0, 7) }))
   await user.click(screen.getByRole('button', { name: stackName('water', 0, 7) }))

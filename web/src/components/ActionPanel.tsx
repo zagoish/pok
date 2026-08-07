@@ -10,7 +10,13 @@ import {
   type GameState,
   type StandardTokenColor,
 } from '../domain/model'
-import TokenStack, { COLOR_LABELS, RAINBOW_LABEL, tokenStackHeight } from './TokenStack'
+import TokenStack, {
+  COLOR_LABELS,
+  RAINBOW_LABEL,
+  chipPosition,
+  clampChipCount,
+  tokenStackHeight,
+} from './TokenStack'
 
 interface ActionPanelProps {
   state: GameState
@@ -43,8 +49,6 @@ function TokenPill({ color, count }: { color: StandardTokenColor | 'rainbow'; co
   )
 }
 
-const MAX_VISIBLE_BANK_CHIPS = 8
-
 function BankStack({
   color,
   held,
@@ -56,22 +60,19 @@ function BankStack({
 }) {
   const label = color === 'rainbow' ? RAINBOW_LABEL : COLOR_LABELS[color]
   const height = tokenStackHeight(bank)
-  const chipCount = Math.min(Math.max(bank, 0), MAX_VISIBLE_BANK_CHIPS)
+  const chipCount = clampChipCount(bank)
   const style = { '--stack-height': `${height}px` } as CSSProperties
 
   return (
     <div
       className={`token-stack token-stack--bank token-stack--${color}`}
       style={style}
+      role="img"
       aria-label={`${label} · 持有 ${held} · 银行 ${bank}`}
     >
       <span className="token-stack__chips" aria-hidden="true">
         {Array.from({ length: chipCount }, (_, index) => (
-          <span
-            key={index}
-            className="token-stack__chip"
-            style={{ bottom: `${index * 5}px`, left: `${(index % 2) * 4}px` }}
-          />
+          <span key={index} className="token-stack__chip" style={chipPosition(index)} />
         ))}
       </span>
       <span className="token-stack__label">{label}</span>

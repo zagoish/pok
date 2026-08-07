@@ -12,10 +12,18 @@ export const COLOR_LABELS: Record<StandardTokenColor, string> = {
 export const RAINBOW_LABEL = '万能'
 
 export function tokenStackHeight(count: number): number {
-  return 10 + Math.min(Math.max(count, 0), 8) * 5
+  return 10 + clampChipCount(count) * 5
 }
 
-const MAX_VISIBLE_CHIPS = 8
+export const MAX_VISIBLE_CHIPS = 8
+
+export function clampChipCount(count: number): number {
+  return Math.min(Math.max(count, 0), MAX_VISIBLE_CHIPS)
+}
+
+export function chipPosition(index: number): { bottom: number; left: number } {
+  return { bottom: index * 5, left: (index % 2) * 4 }
+}
 
 export interface TokenStackProps {
   color: StandardTokenColor | 'rainbow'
@@ -29,7 +37,7 @@ export interface TokenStackProps {
 export default function TokenStack({ color, held, bank, selected, disabled, onPick }: TokenStackProps) {
   const label = color === 'rainbow' ? RAINBOW_LABEL : COLOR_LABELS[color]
   const height = tokenStackHeight(held)
-  const chipCount = Math.min(Math.max(held, 0), MAX_VISIBLE_CHIPS)
+  const chipCount = clampChipCount(held)
   const style = { '--stack-height': `${height}px` } as CSSProperties
 
   return (
@@ -44,11 +52,7 @@ export default function TokenStack({ color, held, bank, selected, disabled, onPi
     >
       <span className="token-stack__chips" aria-hidden="true">
         {Array.from({ length: chipCount }, (_, index) => (
-          <span
-            key={index}
-            className="token-stack__chip"
-            style={{ bottom: `${index * 5}px`, left: `${(index % 2) * 4}px` }}
-          />
+          <span key={index} className="token-stack__chip" style={chipPosition(index)} />
         ))}
       </span>
       <span className="token-stack__label">{label}</span>

@@ -34,17 +34,20 @@ test('renders one pokeball icon per point on a five-point card', () => {
   expect(container.querySelectorAll('.card-view__points .pokeball')).toHaveLength(5)
 })
 
-test('renders the tier pokeball variant class for tiers 1, 2 and 3', () => {
+test('renders the tier pokeball variant class and a visible numeric label for tiers 1, 2 and 3', () => {
   const t1 = renderCard('tier-1-002')
   expect(t1.container.querySelector('.pokeball--tier-1')).not.toBeNull()
+  expect(t1.container.querySelector('.card-view__tier-label')?.textContent).toBe('1')
   expect(t1.container.querySelector('button')).toHaveAttribute('data-tier', '1')
 
   const t2 = renderCard('tier-2-002')
   expect(t2.container.querySelector('.pokeball--tier-2')).not.toBeNull()
+  expect(t2.container.querySelector('.card-view__tier-label')?.textContent).toBe('2')
   expect(t2.container.querySelector('button')).toHaveAttribute('data-tier', '2')
 
   const t3 = renderCard('tier-3-001')
   expect(t3.container.querySelector('.pokeball--tier-3')).not.toBeNull()
+  expect(t3.container.querySelector('.card-view__tier-label')?.textContent).toBe('3')
   expect(t3.container.querySelector('button')).toHaveAttribute('data-tier', '3')
 })
 
@@ -55,6 +58,34 @@ test('renders the bonus dot inside the top line, not in a bottom row', () => {
   expect(bonus).not.toBeNull()
   expect(bonus?.querySelector('.token-dot.token-dot--electric')).not.toBeNull()
   expect(container.querySelectorAll('.card-view__bonus')).toHaveLength(1)
+})
+
+test('shows a visible single-character label on the bonus badge for every bonus color', () => {
+  const shortLabels: Record<string, string> = {
+    fire: '火',
+    water: '水',
+    grass: '草',
+    electric: '电',
+    psychic: '超',
+  }
+
+  for (const card of CARDS) {
+    const { container } = renderCard(card.id)
+    const label = container.querySelector('.card-view__bonus .card-view__bonus-label')
+    expect(label, `bonus label for ${card.id}`).not.toBeNull()
+    expect(label?.textContent).toBe(shortLabels[card.bonusType])
+  }
+})
+
+test('every card renders one pokeball per point and a matching data-count', () => {
+  for (const card of CARDS) {
+    const { container } = renderCard(card.id)
+    expect(container.querySelectorAll('.card-view__points .pokeball')).toHaveLength(card.points)
+    expect(container.querySelector('.card-view__points')).toHaveAttribute(
+      'data-count',
+      String(card.points),
+    )
+  }
 })
 
 test('keeps name, tier, points, bonus, and every non-zero cost in the accessible label', () => {

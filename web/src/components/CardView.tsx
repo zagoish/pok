@@ -15,6 +15,14 @@ const COLOR_LABELS: Record<StandardTokenColor, string> = {
   psychic: '超能',
 }
 
+const COLOR_SHORT_LABELS: Record<StandardTokenColor, string> = {
+  fire: '火',
+  water: '水',
+  grass: '草',
+  electric: '电',
+  psychic: '超',
+}
+
 interface CardViewProps {
   card: Card
   selected: boolean
@@ -43,10 +51,11 @@ export default function CardView({ card, selected, selectCard, disabled = false 
         <span className="card-view__meta">
           <span className="card-view__bonus" aria-hidden="true">
             <span className={`token-dot token-dot--${card.bonusType} token-dot--bonus`} />
+            <span className="card-view__bonus-label">{COLOR_SHORT_LABELS[card.bonusType]}</span>
           </span>
           <span className="card-view__tier">
             <span className={`pokeball pokeball--tier-${card.tier}`} aria-hidden="true" />
-            <span className="sr-only">等级 {card.tier}</span>
+            <span className="card-view__tier-label">{card.tier}</span>
           </span>
         </span>
         <span className="card-view__points" data-count={card.points} aria-hidden="true">

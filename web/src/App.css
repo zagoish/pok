@@ -650,6 +650,7 @@
 }
 
 .card-view__bonus {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -658,6 +659,19 @@
   border-radius: 50%;
   background: rgba(255, 248, 222, 0.55);
   box-shadow: 0 0 0 2px rgba(69, 56, 40, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.card-view__bonus-label {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 800;
+  line-height: 1;
+  color: #221b10;
+  text-shadow: 0 0 2px rgba(255, 248, 222, 0.9);
 }
 
 .card-view__bonus .token-dot {
@@ -670,6 +684,19 @@
 .card-view__tier {
   display: inline-flex;
   align-items: center;
+  gap: 3px;
+}
+
+.card-view__tier-label {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 1px 3px 2px;
+  color: #3a2c1a;
+  border: 1px solid rgba(69, 56, 40, 0.4);
+  border-radius: 3px;
+  background: rgba(255, 248, 222, 0.75);
 }
 
 .card-view__points {
@@ -737,12 +764,11 @@
 }
 
 .pokeball--tier-2 {
-  --pb-top: #e3350d;
   --pb-band-height: 4px;
 }
 
 .pokeball--tier-2::before {
-  background: linear-gradient(180deg, #e8e8e8 0 22%, #26262a 22% 78%, #e8e8e8 78% 100%);
+  background: linear-gradient(180deg, var(--pb-bottom) 0 22%, var(--pb-band) 22% 78%, var(--pb-bottom) 78% 100%);
 }
 
 .pokeball--tier-3 {
@@ -757,14 +783,12 @@
 .pokeball--points {
   width: 8px;
   height: 8px;
-  border-width: 0.5px;
   --pb-band-height: 1.5px;
 }
 
 .pokeball--points::after {
   width: 3px;
   height: 3px;
-  border-width: 0.5px;
 }
 
 .sr-only {
