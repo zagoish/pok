@@ -2,6 +2,7 @@ import { existsSync, statSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { ASSET_PATHS } from './assets'
+import { ASSET_SOURCES } from './asset-sources'
 import { CARDS } from './cards'
 import { NOBLES } from './nobles'
 
@@ -14,7 +15,7 @@ function assetFileOnDisk(path: string): string {
 
 test('every ASSET_PATHS value resolves to an existing non-empty file under web/public', () => {
   const keys = Object.keys(ASSET_PATHS)
-  expect(keys.length).toBeGreaterThanOrEqual(100)
+  expect(keys.length).toBe(100)
 
   for (const key of keys) {
     const assetPath = ASSET_PATHS[key]
@@ -35,6 +36,14 @@ test('every card and noble imageKey is present in ASSET_PATHS', () => {
   }
   for (const noble of NOBLES) {
     expect(keys.has(noble.imageKey)).toBe(true)
+  }
+})
+
+test('ASSET_SOURCES records a source for every ASSET_PATHS entry and nothing else', () => {
+  expect(Object.keys(ASSET_SOURCES)).toEqual(Object.keys(ASSET_PATHS))
+
+  for (const url of Object.values(ASSET_SOURCES)) {
+    expect(url).toMatch(/^https:\/\//)
   }
 })
 

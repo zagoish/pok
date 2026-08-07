@@ -178,7 +178,7 @@ test('purchases a reserved card when it is the best legal purchase', () => {
   })
 })
 
-test('reserves a valuable visible card when no purchase is possible', () => {
+test('reserves the most affordable visible card when no purchase is possible', () => {
   let state = baseState()
   state = withMarket(state, 1, ['tier-1-001'])
   state = withMarket(state, 3, ['tier-3-002'])
@@ -187,8 +187,8 @@ test('reserves a valuable visible card when no purchase is possible', () => {
   expect(chooseAiAction(state, 'ai-1')).toEqual({
     type: 'reserve-card',
     playerId: 'ai-1',
-    cardId: 'tier-3-002',
-    tier: 3,
+    cardId: 'tier-1-001',
+    tier: 1,
   })
 })
 

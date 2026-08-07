@@ -1,15 +1,23 @@
 import { CARDS } from '../data/cards'
-import { addTokens, subtractTokens, zeroTokenInventory } from './inventory'
+import {
+  addTokens,
+  discardTokensToLimit,
+  subtractTokens,
+  zeroTokenInventory,
+} from './inventory'
 import { getPaymentBreakdown } from './payment'
 import {
+  ALL_TOKEN_COLORS,
   type Action,
   type GameState,
+  type PlayerState,
   type RuleResult,
   type Tier,
+  type TokenInventory,
 } from './model'
 import { validateAction } from './action-legality'
 import { claimNoble, getEligibleNobles, selectNobleForComputer } from './nobles'
-import { resolveGameEnd, startFinalRound } from './endgame'
+import { advanceTurnWithSkips, resolveGameEnd, startFinalRound } from './endgame'
 
 function removeFromMarketAndRefill(
   market: GameState['market'],
@@ -22,6 +30,30 @@ function removeFromMarketAndRefill(
   const replacement = decks[tier].shift()
   if (replacement !== undefined) {
     market[tier].push(replacement)
+  }
+}
+
+function grantTokens(
+  player: PlayerState,
+  bank: TokenInventory,
+  granted: TokenInventory,
+): { player: PlayerState; bank: TokenInventory; discarded: number } {
+  const heldTokens = discardTokensToLimit(addTokens(player.tokens, granted), 10)
+  const returned = zeroTokenInventory()
+  let discarded = 0
+
+  for (const color of ALL_TOKEN_COLORS) {
+    const overflow = player.tokens[color] + granted[color] - heldTokens[color]
+    if (overflow > 0) {
+      returned[color] = overflow
+      discarded += overflow
+    }
+  }
+
+  return {
+    player: { ...player, tokens: heldTokens },
+    bank: addTokens(subtractTokens(bank, granted), returned),
+    discarded,
   }
 }
 
@@ -61,20 +93,20 @@ export function applyAction(state: GameState, action: Action): RuleResult<GameSt
     for (const color of action.colors) {
       takenTokens[color] += 1
     }
-    tokenBank = subtractTokens(state.tokenBank, takenTokens)
-    players[state.currentPlayerIndex] = {
-      ...currentPlayer,
-      tokens: addTokens(currentPlayer.tokens, takenTokens),
-    }
-    message = `${currentPlayer.name} took one token of each: ${action.colors.join(', ')}.`
+    const result = grantTokens(currentPlayer, state.tokenBank, takenTokens)
+    tokenBank = result.bank
+    players[state.currentPlayerIndex] = result.player
+    message =
+      `${currentPlayer.name} took one token of each: ${action.colors.join(', ')}.` +
+      (result.discarded > 0 ? ` (discarded ${result.discarded}.)` : '')
   } else if (action.type === 'take-two-same') {
     takenTokens[action.color] = 2
-    tokenBank = subtractTokens(state.tokenBank, takenTokens)
-    players[state.currentPlayerIndex] = {
-      ...currentPlayer,
-      tokens: addTokens(currentPlayer.tokens, takenTokens),
-    }
-    message = `${currentPlayer.name} took two ${action.color} tokens.`
+    const result = grantTokens(currentPlayer, state.tokenBank, takenTokens)
+    tokenBank = result.bank
+    players[state.currentPlayerIndex] = result.player
+    message =
+      `${currentPlayer.name} took two ${action.color} tokens.` +
+      (result.discarded > 0 ? ` (discarded ${result.discarded}.)` : '')
   } else if (action.type === 'buy-card') {
     const card = CARDS.find((candidate) => candidate.id === action.cardId)
     if (!card) {
@@ -125,14 +157,16 @@ export function applyAction(state: GameState, action: Action): RuleResult<GameSt
     if (state.tokenBank.rainbow > 0) {
       reservedTokens.rainbow = 1
     }
-    tokenBank = subtractTokens(state.tokenBank, reservedTokens)
+    const result = grantTokens(currentPlayer, state.tokenBank, reservedTokens)
+    tokenBank = result.bank
     players[state.currentPlayerIndex] = {
-      ...currentPlayer,
-      tokens: addTokens(currentPlayer.tokens, reservedTokens),
+      ...result.player,
       reservedCards: [...currentPlayer.reservedCards, card.id],
     }
     removeFromMarketAndRefill(market, decks, action.tier, card.id)
-    message = `${currentPlayer.name} reserved ${card.name}.`
+    message =
+      `${currentPlayer.name} reserved ${card.name}.` +
+      (result.discarded > 0 ? ` (discarded ${result.discarded}.)` : '')
   }
 
   const nextPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length
@@ -202,10 +236,12 @@ export function applyAction(state: GameState, action: Action): RuleResult<GameSt
 
   return {
     ok: true,
-    value: resolveGameEnd({
-      ...nextState,
-      currentPlayerIndex: nextPlayerIndex,
-      round: nextRound,
-    }),
+    value: advanceTurnWithSkips(
+      resolveGameEnd({
+        ...nextState,
+        currentPlayerIndex: nextPlayerIndex,
+        round: nextRound,
+      }),
+    ),
   }
 }

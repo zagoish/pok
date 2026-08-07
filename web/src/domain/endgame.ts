@@ -1,3 +1,4 @@
+import { getLegalActions } from './action-legality'
 import type { GameState, PlayerId } from './model'
 
 export interface GameEndResult {
@@ -72,5 +73,39 @@ export function resolveGameEnd(state: GameState): GameState {
     phase: result.phase,
     winnerIds: [...result.winnerIds],
     finalRoundStartIndex: result.finalRoundStartIndex,
+  }
+}
+
+export function advanceTurnWithSkips(state: GameState): GameState {
+  let current = state
+
+  for (let advanced = 0; advanced < current.players.length; advanced += 1) {
+    if (current.phase === 'finished' || current.pendingNobleIds.length > 0) return current
+
+    const player = current.players[current.currentPlayerIndex]
+    if (getLegalActions(current, player.id).length > 0) return current
+
+    const nextIndex = (current.currentPlayerIndex + 1) % current.players.length
+    const nextRound = nextIndex === current.startingPlayerIndex ? current.round + 1 : current.round
+
+    current = resolveGameEnd({
+      ...current,
+      currentPlayerIndex: nextIndex,
+      round: nextRound,
+      eventLog: [
+        ...current.eventLog,
+        {
+          type: 'skip',
+          playerId: player.id,
+          message: `${player.name} had no legal actions and passed.`,
+        },
+      ],
+    })
+  }
+
+  return {
+    ...resolveGameEnd(current),
+    phase: 'finished',
+    winnerIds: getWinnerIds(current),
   }
 }

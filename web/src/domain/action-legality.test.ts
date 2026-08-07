@@ -1,7 +1,8 @@
 import { createInitialGame } from './setup'
 import type { Action, GameState } from './model'
-import { zeroTokenInventory } from './inventory'
+import { totalTokens, zeroTokenInventory } from './inventory'
 import { getLegalActions, validateAction } from './action-legality'
+import { applyAction } from './action-apply'
 
 function withBank(state: GameState, changes: Partial<GameState['tokenBank']>): GameState {
   return {
@@ -91,7 +92,7 @@ test('rejects a token action when the bank cannot provide the requested tokens',
   })
 })
 
-test('rejects a token action that would exceed ten tokens', () => {
+test('allows a token action beyond ten tokens and discards the overflow when applied', () => {
   const state = withPlayerTokens(createInitialGame(123), 0, { fire: 8 })
   const action: Action = {
     type: 'take-three-different',
@@ -99,15 +100,16 @@ test('rejects a token action that would exceed ten tokens', () => {
     colors: ['fire', 'water', 'grass'],
   }
 
-  const result = validateAction(state, action)
-
-  expect(result).toEqual({
-    ok: false,
-    error: {
-      code: 'TOKEN_LIMIT',
-      message: expect.any(String),
-    },
+  expect(validateAction(state, action)).toEqual({
+    ok: true,
+    value: undefined,
   })
+
+  const result = applyAction(state, action)
+  expect(result.ok).toBe(true)
+  if (result.ok) {
+    expect(totalTokens(result.value.players[0].tokens)).toBe(10)
+  }
 })
 
 test('requires four bank tokens for a same-color action', () => {
@@ -172,7 +174,7 @@ test('rejects finished games but validates actions in the final round', () => {
   })
 })
 
-test('does not offer token actions that would exceed the token limit', () => {
+test('still offers token actions at the limit because overflow is discarded', () => {
   const state = withPlayerTokens(createInitialGame(123), 0, {
     ...zeroTokenInventory(),
     fire: 9,
@@ -180,6 +182,7 @@ test('does not offer token actions that would exceed the token limit', () => {
 
   const actions = getLegalActions(state, 'human')
 
-  expect(actions.filter((action) => action.type.startsWith('take-'))).toEqual([])
+  expect(actions.some((action) => action.type === 'take-three-different')).toBe(true)
+  expect(actions.some((action) => action.type === 'take-two-same')).toBe(true)
   expect(actions.some((action) => action.type === 'reserve-card')).toBe(true)
 })

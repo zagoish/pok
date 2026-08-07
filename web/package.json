@@ -11,7 +11,8 @@
     "build": "tsc -b && vite build",
     "test": "vitest run",
     "test:watch": "vitest",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "download:assets": "node scripts/download-assets.mjs"
   },
   "dependencies": {
     "react": "19.2.8",

@@ -157,10 +157,10 @@ function reserveScore(state: GameState, playerId: PlayerId, card: Card): Score {
   }
 
   return {
-    primary: card.tier,
-    secondary: card.points,
-    tertiary: usefulBonusScore(state, playerId, card.bonusType, targetCards),
-    quaternary: -missingCost(card, player),
+    primary: -missingCost(card, player),
+    secondary: card.tier,
+    tertiary: card.points,
+    quaternary: usefulBonusScore(state, playerId, card.bonusType, targetCards),
   }
 }
 

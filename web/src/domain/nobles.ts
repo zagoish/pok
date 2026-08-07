@@ -9,7 +9,7 @@ import {
   type PlayerState,
   type RuleResult,
 } from './model'
-import { resolveGameEnd, startFinalRound } from './endgame'
+import { resolveGameEnd, startFinalRound, advanceTurnWithSkips } from './endgame'
 
 function ruleError(code: string, message: string): RuleResult<GameState> {
   return { ok: false, error: { code, message } }
@@ -144,5 +144,5 @@ export function claimNoble(state: GameState, playerId: PlayerId, nobleId: NobleI
   const finalRoundState =
     players[playerIndex].points >= 15 ? startFinalRound(nextState, playerIndex) : nextState
 
-  return { ok: true, value: resolveGameEnd(finalRoundState) }
+  return { ok: true, value: advanceTurnWithSkips(resolveGameEnd(finalRoundState)) }
 }

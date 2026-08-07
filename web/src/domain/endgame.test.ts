@@ -1,9 +1,10 @@
 import { applyAction } from './action-apply'
 import { getLegalActions, validateAction } from './action-legality'
 import { claimNoble, getEligibleNobles } from './nobles'
-import { checkGameEnd } from './endgame'
+import { advanceTurnWithSkips, checkGameEnd } from './endgame'
 import { nextRandom } from './random'
 import { createInitialGame } from './setup'
+import { zeroTokenInventory } from './inventory'
 import type { Action, CardId, GameState, NobleId, PlayerId, RuleResult, Tier } from './model'
 
 const BULBASAUR = 'tier-1-001'
@@ -481,4 +482,68 @@ test('failed noble transitions do not mutate the input or nested data', () => {
   expect(state.availableNobles).toEqual(original.availableNobles)
   expect(state.pendingNobleIds).toEqual(original.pendingNobleIds)
   expect(state.players[0].nobles).toEqual(original.players[0].nobles)
+})
+
+function stuckState(): GameState {
+  const state = createInitialGame(123)
+
+  return {
+    ...state,
+    market: { 1: [], 2: [], 3: [] },
+    decks: { 1: [], 2: [], 3: [] },
+    availableNobles: [],
+    tokenBank: zeroTokenInventory(),
+    players: state.players.map((player) => ({
+      ...player,
+      tokens: { ...zeroTokenInventory() },
+      bonuses: { ...player.bonuses },
+      purchasedCards: [],
+      reservedCards: ['tier-3-014', 'tier-3-003', 'tier-3-010'],
+      nobles: [],
+      points: 0,
+    })),
+  }
+}
+
+test('skips a current player with no legal actions and records the pass', () => {
+  let state = stuckState()
+  state = {
+    ...state,
+    currentPlayerIndex: 1,
+    players: state.players.map((player, index) =>
+      index === 2
+        ? {
+            ...player,
+            tokens: { ...zeroTokenInventory(), fire: 3 },
+            reservedCards: ['tier-1-018'],
+          }
+        : player,
+    ),
+  }
+
+  expect(getLegalActions(state, 'ai-1')).toEqual([])
+
+  const next = advanceTurnWithSkips(state)
+
+  expect(next.currentPlayerIndex).toBe(2)
+  expect(next.round).toBe(1)
+  expect(next.phase).toBe('playing')
+  expect(next.eventLog).toEqual([
+    {
+      type: 'skip',
+      playerId: 'ai-1',
+      message: expect.any(String),
+    },
+  ])
+  expect(getLegalActions(next, 'ai-2').length).toBeGreaterThan(0)
+})
+
+test('finishes the game when every player would be skipped', () => {
+  const state = stuckState()
+
+  const next = advanceTurnWithSkips(state)
+
+  expect(next.phase).toBe('finished')
+  expect(next.eventLog.filter((event) => event.type === 'skip')).toHaveLength(4)
+  expect(next.winnerIds).toEqual(['human', 'ai-1', 'ai-2', 'ai-3'])
 })

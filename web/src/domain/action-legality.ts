@@ -9,7 +9,7 @@ import {
   type StandardTokenColor,
   type Tier,
 } from './model'
-import { canAfford, totalTokens } from './inventory'
+import { canAfford } from './inventory'
 
 function ruleError(code: string, message: string): RuleResult {
   return { ok: false, error: { code, message } }
@@ -17,16 +17,6 @@ function ruleError(code: string, message: string): RuleResult {
 
 function validAction(): RuleResult {
   return { ok: true, value: undefined }
-}
-
-function validateTokenLimit(state: GameState, tokenCount: number): RuleResult {
-  const player = state.players[state.currentPlayerIndex]
-
-  if (totalTokens(player.tokens) + tokenCount > 10) {
-    return ruleError('TOKEN_LIMIT', 'A player cannot hold more than ten tokens.')
-  }
-
-  return validAction()
 }
 
 function findCard(cardId: string): Card | undefined {
@@ -74,7 +64,11 @@ export function getLegalActions(state: GameState, playerId: PlayerId): Action[] 
     }
   }
 
+  const lowBank = STANDARD_TOKEN_COLORS.filter((color) => state.tokenBank[color] >= 1).length < 3
+  const sameColorMinimum = lowBank ? 2 : 4
+
   for (const color of STANDARD_TOKEN_COLORS) {
+    if (state.tokenBank[color] < sameColorMinimum) continue
     const action: Action = { type: 'take-two-same', playerId, color }
 
     if (validateAction(state, action).ok) {
@@ -134,14 +128,18 @@ export function validateAction(state: GameState, action: Action): RuleResult {
         return ruleError('INSUFFICIENT_BANK', 'The bank does not have the requested tokens.')
       }
 
-      return validateTokenLimit(state, 3)
+      return validAction()
     }
-    case 'take-two-same':
-      if (state.tokenBank[action.color] < 4) {
-        return ruleError('INSUFFICIENT_BANK', 'The bank must contain at least four tokens of that color.')
+    case 'take-two-same': {
+      const lowBank = STANDARD_TOKEN_COLORS.filter((color) => state.tokenBank[color] >= 1).length < 3
+      const minimum = lowBank ? 2 : 4
+
+      if (state.tokenBank[action.color] < minimum) {
+        return ruleError('INSUFFICIENT_BANK', 'The bank must contain enough tokens of that color.')
       }
 
-      return validateTokenLimit(state, 2)
+      return validAction()
+    }
     case 'buy-card': {
       const card = findCard(action.cardId)
       if (!card) {
@@ -170,10 +168,6 @@ export function validateAction(state: GameState, action: Action): RuleResult {
 
       if (currentPlayer.reservedCards.length >= 3) {
         return ruleError('RESERVE_LIMIT', 'A player cannot reserve more than three cards.')
-      }
-
-      if (state.tokenBank.rainbow > 0 && totalTokens(currentPlayer.tokens) + 1 > 10) {
-        return ruleError('TOKEN_LIMIT', 'A player cannot hold more than ten tokens.')
       }
 
       return validAction()
