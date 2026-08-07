@@ -119,6 +119,12 @@ function createReservedReadyState() {
   return { state, card }
 }
 
+function createLoggedState(): GameState {
+  const state = structuredClone(createInitialGame(123))
+  state.eventLog = [{ type: 'seed', playerId: 'human', message: 'existing event' }]
+  return state
+}
+
 test('exposes the title and the three named table regions', () => {
   render(<App seed={123} />)
 
@@ -232,6 +238,9 @@ test('selects and purchases a reserved card through the real session', async () 
   const team = screen.getByRole('region', { name: '你的队伍' })
   const reservedButton = within(team).getByRole('button', { name: new RegExp(`${card.name}.*预留`) })
   expect(reservedButton).toHaveAttribute('aria-pressed', 'false')
+  expect(reservedButton).toHaveAccessibleName(/奖励 超能/)
+  expect(reservedButton).toHaveAccessibleName(/火 1/)
+  expect(reservedButton).toHaveAccessibleName(/电 2/)
 
   await user.click(reservedButton)
 
@@ -303,6 +312,17 @@ test('does not dispatch an illegal reserve action after reaching the reserve lim
   await user.click(reserveButton)
 
   expect(within(screen.getByRole('region', { name: '对局记录' })).getByText(/第一枚宝石/)).toBeInTheDocument()
+})
+
+test('keeps an existing event node stable when a newer event is appended', async () => {
+  const user = userEvent.setup()
+  render(<App initialState={createLoggedState()} />)
+
+  const eventLog = screen.getByRole('region', { name: '对局记录' })
+  const existingEvent = within(eventLog).getByText('existing event')
+  await user.click(screen.getByRole('button', { name: /拿取.*火.*水.*草/ }))
+
+  expect(within(eventLog).getByText('existing event')).toBe(existingEvent)
 })
 
 test('opens and closes the rules dialog with Escape', async () => {
@@ -380,7 +400,9 @@ test('closes the pending noble modal with Escape while keeping the required choi
   await user.keyboard('{Escape}')
 
   expect(screen.queryByRole('dialog', { name: '选择贵族' })).not.toBeInTheDocument()
-  expect(screen.getAllByRole('button', { name: /选择/ })).toHaveLength(2)
+  const inlineChoices = screen.getAllByRole('button', { name: /选择/ })
+  expect(inlineChoices).toHaveLength(2)
+  expect(inlineChoices[0]).toHaveFocus()
 })
 
 test('renders the finished victory overlay and restarts the session', async () => {
@@ -408,6 +430,19 @@ test('focuses the victory action and closes it with Escape by restarting', async
   await user.keyboard('{Escape}')
 
   expect(screen.queryByRole('dialog', { name: '联赛结算' })).not.toBeInTheDocument()
+})
+
+test('never exposes concurrent Rules and Victory modals', async () => {
+  const user = userEvent.setup()
+  render(<App initialState={createFinishedState()} />)
+
+  expect(document.querySelectorAll('[aria-modal="true"]')).toHaveLength(1)
+  await user.click(screen.getByRole('button', { name: '规则' }))
+  expect(document.querySelectorAll('[aria-modal="true"]')).toHaveLength(1)
+
+  const victory = screen.getByRole('dialog', { name: '联赛结算' })
+  await user.click(within(victory).getByRole('button', { name: '再开一局' }))
+  expect(document.querySelectorAll('[aria-modal="true"]')).toHaveLength(0)
 })
 
 test('renders finished standings sorted by points, then fewer purchased cards', () => {

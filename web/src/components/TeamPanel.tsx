@@ -31,6 +31,15 @@ interface TeamCardProps {
   disabled: boolean
 }
 
+function cardAccessibleLabel(card: (typeof CARDS)[number], reserved: boolean) {
+  const costs = STANDARD_TOKEN_COLORS.filter((color) => card.cost[color] > 0)
+  const costLabel = costs.length > 0
+    ? costs.map((color) => `${COLOR_LABELS[color]} ${card.cost[color]}`).join('，')
+    : '免费'
+
+  return `${card.name}，${reserved ? '预留卡牌' : '已购买卡牌'}，等级 ${card.tier}，${card.points} 分，奖励 ${COLOR_LABELS[card.bonusType]}，费用 ${costLabel}`
+}
+
 function TeamCard({ cardId, reserved, selected, selectCard, disabled }: TeamCardProps) {
   const card = CARDS.find((candidate) => candidate.id === cardId)
   const [imageFailed, setImageFailed] = useState(false)
@@ -63,7 +72,7 @@ function TeamCard({ cardId, reserved, selected, selectCard, disabled }: TeamCard
       <button
         type="button"
         className={`purchased-card purchased-card--reserved${selected ? ' is-selected' : ''}`}
-        aria-label={`${card.name}，预留卡牌，等级 ${card.tier}，${card.points} 分`}
+        aria-label={cardAccessibleLabel(card, true)}
         aria-pressed={selected}
         disabled={disabled}
         onClick={() => selectCard(card.id)}

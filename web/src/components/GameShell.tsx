@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { GameState } from '../domain/model'
 import { useGameSession } from '../game/useGameSession'
 import ActionPanel from './ActionPanel'
@@ -28,6 +28,15 @@ export default function GameShell({ seed, initialState }: GameShellProps) {
   const humanPlayer = state.players.find((player) => player.isHuman)
   const humanTurn = currentPlayer?.isHuman ?? false
   const tableLocked = state.phase === 'finished' || pendingNobleIds.length > 0 || !humanTurn
+  const rulesVisible = rulesOpen && state.phase !== 'finished'
+  const restartGame = () => {
+    setRulesOpen(false)
+    session.restart()
+  }
+
+  useEffect(() => {
+    if (state.phase === 'finished') setRulesOpen(false)
+  }, [state.phase])
 
   return (
     <>
@@ -61,7 +70,7 @@ export default function GameShell({ seed, initialState }: GameShellProps) {
             <button type="button" className="top-bar__button" onClick={() => setRulesOpen(true)}>
               规则
             </button>
-            <button type="button" className="top-bar__button top-bar__button--restart" onClick={session.restart}>
+            <button type="button" className="top-bar__button top-bar__button--restart" onClick={restartGame}>
               重新开始
             </button>
           </div>
@@ -96,8 +105,12 @@ export default function GameShell({ seed, initialState }: GameShellProps) {
               </div>
               <div className="event-log__list" aria-live="polite">
                 {state.eventLog.length > 0 ? (
-                  [...state.eventLog].reverse().slice(0, 6).map((event, index) => (
-                    <p key={`${event.type}-${event.playerId}-${index}`}>
+                  state.eventLog
+                    .map((event, originalIndex) => ({ event, originalIndex }))
+                    .reverse()
+                    .slice(0, 6)
+                    .map(({ event, originalIndex }) => (
+                    <p key={`${event.type}-${event.playerId}-${originalIndex}`}>
                       <span className="event-log__dot" />
                       {event.message}
                     </p>
@@ -118,8 +131,8 @@ export default function GameShell({ seed, initialState }: GameShellProps) {
         </div>
       </main>
 
-      <RulesModal open={rulesOpen} onClose={() => setRulesOpen(false)} />
-      <VictoryOverlay state={state} restart={session.restart} />
+      <RulesModal open={rulesVisible} onClose={() => setRulesOpen(false)} />
+      <VictoryOverlay state={state} restart={restartGame} />
     </>
   )
 }
