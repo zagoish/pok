@@ -1,5 +1,4 @@
-import { totalTokens } from '../domain/inventory'
-import { type GameState, type PlayerId, type StandardTokenColor } from '../domain/model'
+import { type GameState, type StandardTokenColor } from '../domain/model'
 
 const TOKEN_COLORS: StandardTokenColor[] = ['fire', 'water', 'grass', 'electric', 'psychic']
 
@@ -15,16 +14,7 @@ interface PlayerRailProps {
   state: GameState
 }
 
-function playerLatestEvent(state: GameState, playerId: PlayerId) {
-  for (let index = state.eventLog.length - 1; index >= 0; index -= 1) {
-    if (state.eventLog[index].playerId === playerId) return state.eventLog[index]
-  }
-  return undefined
-}
-
 export default function PlayerRail({ state }: PlayerRailProps) {
-  const latestEvent = state.eventLog[state.eventLog.length - 1]
-
   return (
     <section className="player-rail" role="region" aria-labelledby="player-rail-heading">
       <div className="section-heading section-heading--rail">
@@ -38,7 +28,6 @@ export default function PlayerRail({ state }: PlayerRailProps) {
       <div className="player-list">
         {state.players.map((player, index) => {
           const isCurrent = index === state.currentPlayerIndex
-          const event = playerLatestEvent(state, player.id)
 
           return (
             <article
@@ -46,10 +35,10 @@ export default function PlayerRail({ state }: PlayerRailProps) {
               key={player.id}
             >
               <div className="player-card__heading">
-                <div>
-                  <span className="player-card__seed">0{index + 1}</span>
-                  <h3>{player.name}</h3>
-                </div>
+                <span className="player-card__avatar" aria-hidden="true">
+                  {index + 1}
+                </span>
+                <h3>{player.name}</h3>
                 {isCurrent ? <span className="player-card__turn">当前回合</span> : null}
               </div>
 
@@ -58,40 +47,23 @@ export default function PlayerRail({ state }: PlayerRailProps) {
                 <span>积分</span>
               </div>
 
-              <div className="player-metrics">
-                <p className="metric">代币总数：{totalTokens(player.tokens)}</p>
-                <p className="metric">已购卡：{player.purchasedCards.length}</p>
-                <p className="metric">预留卡：{player.reservedCards.length}</p>
-                <p className="metric">贵族：{player.nobles.length}</p>
-              </div>
-
               <div className="token-strip" aria-label={`${player.name} 的代币`}>
                 {TOKEN_COLORS.map((color) => (
-                  <span className="token-count" key={color}>
+                  <span className={`token-count token-count--${color}`} key={color}>
                     <span className={`token-dot token-dot--${color}`} aria-hidden="true" />
-                    <span>{COLOR_LABELS[color]}</span>
+                    <span className="token-count__label">{COLOR_LABELS[color]}</span>
                     <strong>{player.tokens[color]}</strong>
                   </span>
                 ))}
                 <span className="token-count token-count--wild">
                   <span className="token-dot token-dot--rainbow" aria-hidden="true" />
-                  <span>万能</span>
+                  <span className="token-count__label">万能</span>
                   <strong>{player.tokens.rainbow}</strong>
                 </span>
               </div>
-
-              <p className="player-card__event">
-                <span>最近动作</span>
-                {event ? event.message : '尚未发生动作'}
-              </p>
             </article>
           )
         })}
-      </div>
-
-      <div className="latest-event">
-        <span className="section-kicker">LATEST EVENT</span>
-        <p>{latestEvent?.message ?? '牌桌已就位，等待第一位训练家行动。'}</p>
       </div>
     </section>
   )

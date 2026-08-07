@@ -197,7 +197,8 @@ test('dispatches a legal three-different-token action through the session', asyn
 
   const eventLog = screen.getByRole('region', { name: '对局记录' })
   expect(within(eventLog).getByText(/玩家 took one token of each: fire, water, grass/i)).toBeInTheDocument()
-  expect(screen.getByText(/代币总数.*3/)).toBeInTheDocument()
+  const rail = screen.getByRole('region', { name: '训练家进度' })
+  expect(within(rail).getByText('1', { selector: '.token-count--fire strong' })).toBeInTheDocument()
 })
 
 test('dispatches a legal reserve action for the selected market card', async () => {
@@ -214,7 +215,8 @@ test('dispatches a legal reserve action for the selected market card', async () 
 
   const eventLog = screen.getByRole('region', { name: '对局记录' })
   expect(within(eventLog).getByText(new RegExp(`玩家 reserved ${card.name}`, 'i'))).toBeInTheDocument()
-  expect(within(screen.getByRole('region', { name: '训练家进度' })).getByText(/预留卡.*1/)).toBeInTheDocument()
+  const team = screen.getByRole('region', { name: '你的队伍' })
+  expect(within(team).getByRole('button', { name: new RegExp(`${card.name}.*预留`) })).toBeInTheDocument()
   expect(screen.getByText(/从野外市场选择一张卡牌/)).toBeInTheDocument()
 })
 
@@ -232,7 +234,8 @@ test('dispatches a legal buy action and updates the purchased-card count', async
 
   const eventLog = screen.getByRole('region', { name: '对局记录' })
   expect(within(eventLog).getByText(new RegExp(`玩家 bought ${card.name}`, 'i'))).toBeInTheDocument()
-  expect(within(screen.getByRole('region', { name: '训练家进度' })).getByText(/已购卡.*1/)).toBeInTheDocument()
+  const team = screen.getByRole('region', { name: '你的队伍' })
+  expect(within(team).getByText(card.name)).toBeInTheDocument()
   expect(screen.getByText(/从野外市场选择一张卡牌/)).toBeInTheDocument()
 })
 
@@ -257,7 +260,7 @@ test('selects and purchases a reserved card through the real session', async () 
   expect(buyButton).toBeEnabled()
   await user.click(buyButton)
 
-  expect(within(screen.getByRole('region', { name: '训练家进度' })).getByText(/已购卡.*1/)).toBeInTheDocument()
+  expect(within(screen.getByRole('region', { name: '你的队伍' })).getByText(card.name)).toBeInTheDocument()
   expect(screen.getByText(/从野外市场选择一张卡牌/)).toBeInTheDocument()
   expect(within(team).queryByRole('button', { name: new RegExp(`${card.name}.*预留`) })).not.toBeInTheDocument()
 })
@@ -519,6 +522,49 @@ test('renders finished standings sorted by points, then fewer purchased cards', 
   const names = rows.map((row) => within(row).getAllByRole('cell')[0].textContent?.replace('冠军', '').trim())
 
   expect(names).toEqual(['小刚', '玩家', '小智', '小霞'])
+})
+
+test('renders the noble strip above the market region in DOM order', () => {
+  const { container } = render(<App seed={123} />)
+
+  expect(screen.getByRole('region', { name: '贵族训练家' })).toBeInTheDocument()
+  expect(screen.getByRole('region', { name: '野外市场' })).toBeInTheDocument()
+
+  const nobleHeading = container.querySelector<HTMLHeadingElement>('#noble-heading')
+  const marketHeading = container.querySelector<HTMLHeadingElement>('#market-heading')
+  if (!nobleHeading || !marketHeading) throw new Error('Missing region heading')
+
+  const headings = Array.from(container.querySelectorAll('h2'))
+  expect(headings.indexOf(nobleHeading)).toBeLessThan(headings.indexOf(marketHeading))
+})
+
+test('player rail shows only name, points, and six token counts', () => {
+  const state = structuredClone(createInitialGame(123))
+  state.players[0] = {
+    ...state.players[0],
+    points: 7,
+    tokens: { fire: 3, water: 2, grass: 1, electric: 4, psychic: 0, rainbow: 1 },
+  }
+
+  render(<App initialState={state} />)
+
+  const rail = screen.getByRole('region', { name: '训练家进度' })
+  const humanCard = rail.querySelector('.player-card.is-human')
+  if (!humanCard) throw new Error('Missing human player card')
+
+  expect(within(rail).getByText('玩家')).toBeInTheDocument()
+  expect(within(rail).getByText('7')).toBeInTheDocument()
+  expect(humanCard.querySelectorAll('.token-count')).toHaveLength(6)
+  expect(humanCard.querySelector('.token-count--fire strong')?.textContent).toBe('3')
+  expect(humanCard.querySelector('.token-count--water strong')?.textContent).toBe('2')
+  expect(humanCard.querySelector('.token-count--grass strong')?.textContent).toBe('1')
+  expect(humanCard.querySelector('.token-count--electric strong')?.textContent).toBe('4')
+  expect(humanCard.querySelector('.token-count--psychic strong')?.textContent).toBe('0')
+  expect(humanCard.querySelector('.token-count--wild strong')?.textContent).toBe('1')
+  expect(within(rail).queryByText(/已购卡/)).not.toBeInTheDocument()
+  expect(within(rail).queryByText(/预留卡/)).not.toBeInTheDocument()
+  expect(within(rail).queryByText(/代币总数/)).not.toBeInTheDocument()
+  expect(within(rail).queryByText(/贵族：/)).not.toBeInTheDocument()
 })
 
 test('shows the human purchased Pokemon cards and all five permanent bonus counts', () => {

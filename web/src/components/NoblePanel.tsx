@@ -103,10 +103,10 @@ export default function NoblePanel({ state, claimNoble }: NoblePanelProps) {
         <span className="noble-panel__count">可遇 {nobles.length}</span>
       </div>
 
-      <div className="noble-grid">
+      <div className="noble-strip">
         {nobles.map((noble) => (
-          <article className="noble-card" key={noble.id}>
-            <div className="noble-card__portrait">
+          <article className="noble-strip__card" key={noble.id}>
+            <div className="noble-strip__portrait">
               <img
                 src={ASSET_PATHS[noble.imageKey] ?? noble.imageKey}
                 alt=""
@@ -116,17 +116,16 @@ export default function NoblePanel({ state, claimNoble }: NoblePanelProps) {
               />
               <span aria-hidden="true">{noble.name.slice(0, 1)}</span>
             </div>
-            <div className="noble-card__body">
-              <div className="noble-card__title">
+            <div className="noble-strip__info">
+              <div className="noble-strip__title">
                 <h3>{noble.name}</h3>
                 <strong>+{noble.points}</strong>
               </div>
-              <p>需要已收集的奖励</p>
               <div className="requirement-row">
                 {requirementText(noble.id).map((requirement) => (
                   <span key={requirement.color} className={`requirement-chip requirement-chip--${requirement.color}`}>
                     <span className="token-dot" aria-hidden="true" />
-                    {requirement.label} {requirement.value}
+                    <span aria-label={`${requirement.label} ${requirement.value}`}>{requirement.value}</span>
                   </span>
                 ))}
               </div>

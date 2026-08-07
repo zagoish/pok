@@ -86,13 +86,13 @@ export default function GameShell({ seed, initialState }: GameShellProps) {
           <PlayerRail state={state} />
 
           <div className="table-center">
+            <NoblePanel state={state} claimNoble={session.claimNoble} />
             <MarketBoard
               state={state}
               selectedCardId={selectedCardId}
               selectCard={session.selectCard}
               disabled={tableLocked}
             />
-            <NoblePanel state={state} claimNoble={session.claimNoble} />
             {humanPlayer ? (
               <TeamPanel
                 player={humanPlayer}
