@@ -1,0 +1,185 @@
+import { createInitialGame } from './setup'
+import type { Action, GameState } from './model'
+import { zeroTokenInventory } from './inventory'
+import { getLegalActions, validateAction } from './action-legality'
+
+function withBank(state: GameState, changes: Partial<GameState['tokenBank']>): GameState {
+  return {
+    ...state,
+    tokenBank: { ...state.tokenBank, ...changes },
+  }
+}
+
+function withPlayerTokens(
+  state: GameState,
+  playerIndex: number,
+  changes: Partial<GameState['players'][number]['tokens']>,
+): GameState {
+  return {
+    ...state,
+    players: state.players.map((player, index) =>
+      index === playerIndex
+        ? { ...player, tokens: { ...player.tokens, ...changes } }
+        : player,
+    ),
+  }
+}
+
+test('enumerates every legal three-different combination in stable color order', () => {
+  const actions = getLegalActions(createInitialGame(123), 'human')
+  const differentActions = actions.filter(
+    (action): action is Extract<Action, { type: 'take-three-different' }> =>
+      action.type === 'take-three-different',
+  )
+
+  expect(differentActions).toEqual([
+    { type: 'take-three-different', playerId: 'human', colors: ['fire', 'water', 'grass'] },
+    { type: 'take-three-different', playerId: 'human', colors: ['fire', 'water', 'electric'] },
+    { type: 'take-three-different', playerId: 'human', colors: ['fire', 'water', 'psychic'] },
+    { type: 'take-three-different', playerId: 'human', colors: ['fire', 'grass', 'electric'] },
+    { type: 'take-three-different', playerId: 'human', colors: ['fire', 'grass', 'psychic'] },
+    { type: 'take-three-different', playerId: 'human', colors: ['fire', 'electric', 'psychic'] },
+    { type: 'take-three-different', playerId: 'human', colors: ['water', 'grass', 'electric'] },
+    { type: 'take-three-different', playerId: 'human', colors: ['water', 'grass', 'psychic'] },
+    { type: 'take-three-different', playerId: 'human', colors: ['water', 'electric', 'psychic'] },
+    { type: 'take-three-different', playerId: 'human', colors: ['grass', 'electric', 'psychic'] },
+  ])
+})
+
+test('enumerates same-color actions only when the bank has four tokens', () => {
+  const state = withBank(createInitialGame(123), { fire: 4, water: 3 })
+  const actions = getLegalActions(state, 'human')
+
+  expect(actions).toContainEqual({ type: 'take-two-same', playerId: 'human', color: 'fire' })
+  expect(actions).not.toContainEqual({ type: 'take-two-same', playerId: 'human', color: 'water' })
+})
+
+test('rejects duplicate colors in a three-different action', () => {
+  const action: Action = {
+    type: 'take-three-different',
+    playerId: 'human',
+    colors: ['fire', 'fire', 'grass'],
+  }
+
+  const result = validateAction(createInitialGame(123), action)
+
+  expect(result).toEqual({
+    ok: false,
+    error: {
+      code: 'DUPLICATE_COLORS',
+      message: expect.any(String),
+    },
+  })
+})
+
+test('rejects a token action when the bank cannot provide the requested tokens', () => {
+  const state = withBank(createInitialGame(123), { fire: 0 })
+  const action: Action = {
+    type: 'take-three-different',
+    playerId: 'human',
+    colors: ['fire', 'water', 'grass'],
+  }
+
+  const result = validateAction(state, action)
+
+  expect(result).toEqual({
+    ok: false,
+    error: {
+      code: 'INSUFFICIENT_BANK',
+      message: expect.any(String),
+    },
+  })
+})
+
+test('rejects a token action that would exceed ten tokens', () => {
+  const state = withPlayerTokens(createInitialGame(123), 0, { fire: 8 })
+  const action: Action = {
+    type: 'take-three-different',
+    playerId: 'human',
+    colors: ['fire', 'water', 'grass'],
+  }
+
+  const result = validateAction(state, action)
+
+  expect(result).toEqual({
+    ok: false,
+    error: {
+      code: 'TOKEN_LIMIT',
+      message: expect.any(String),
+    },
+  })
+})
+
+test('requires four bank tokens for a same-color action', () => {
+  const action: Action = { type: 'take-two-same', playerId: 'human', color: 'fire' }
+
+  expect(validateAction(withBank(createInitialGame(123), { fire: 3 }), action)).toEqual({
+    ok: false,
+    error: {
+      code: 'INSUFFICIENT_BANK',
+      message: expect.any(String),
+    },
+  })
+  expect(validateAction(withBank(createInitialGame(123), { fire: 4 }), action)).toEqual({
+    ok: true,
+    value: undefined,
+  })
+})
+
+test('does not offer actions to a player who is not current', () => {
+  const state = createInitialGame(123)
+
+  expect(getLegalActions(state, 'ai-1')).toEqual([])
+})
+
+test('rejects a declared actor who is not the current player', () => {
+  const action: Action = {
+    type: 'take-two-same',
+    playerId: 'ai-1',
+    color: 'fire',
+  }
+
+  expect(validateAction(createInitialGame(123), action)).toEqual({
+    ok: false,
+    error: {
+      code: 'NOT_CURRENT_PLAYER',
+      message: expect.any(String),
+    },
+  })
+})
+
+test('includes the requested player in every generated token action', () => {
+  expect(getLegalActions(createInitialGame(123), 'human')).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ playerId: 'human' }),
+    ]),
+  )
+})
+
+test('rejects finished games but validates actions in the final round', () => {
+  const action: Action = { type: 'take-two-same', playerId: 'human', color: 'fire' }
+
+  expect(validateAction({ ...createInitialGame(123), phase: 'finished' }, action)).toEqual({
+    ok: false,
+    error: {
+      code: 'GAME_FINISHED',
+      message: expect.any(String),
+    },
+  })
+  expect(validateAction({ ...createInitialGame(123), phase: 'final-round' }, action)).toEqual({
+    ok: true,
+    value: undefined,
+  })
+})
+
+test('does not offer token actions that would exceed the token limit', () => {
+  const state = withPlayerTokens(createInitialGame(123), 0, {
+    ...zeroTokenInventory(),
+    fire: 9,
+  })
+
+  const actions = getLegalActions(state, 'human')
+
+  expect(actions.filter((action) => action.type.startsWith('take-'))).toEqual([])
+  expect(actions.some((action) => action.type === 'reserve-card')).toBe(true)
+})
