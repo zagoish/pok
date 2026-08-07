@@ -27,6 +27,12 @@ function isVisibleInTier(state: GameState, card: Card, tier: Tier): boolean {
   return card.tier === tier && state.market[tier].includes(card.id)
 }
 
+function sameColorTokenMinimum(bank: GameState['tokenBank']): number {
+  const lowBank = STANDARD_TOKEN_COLORS.filter((color) => bank[color] >= 1).length < 3
+
+  return lowBank ? 2 : 4
+}
+
 export function getLegalActions(state: GameState, playerId: PlayerId): Action[] {
   const currentPlayer = state.players[state.currentPlayerIndex]
 
@@ -64,8 +70,7 @@ export function getLegalActions(state: GameState, playerId: PlayerId): Action[] 
     }
   }
 
-  const lowBank = STANDARD_TOKEN_COLORS.filter((color) => state.tokenBank[color] >= 1).length < 3
-  const sameColorMinimum = lowBank ? 2 : 4
+  const sameColorMinimum = sameColorTokenMinimum(state.tokenBank)
 
   for (const color of STANDARD_TOKEN_COLORS) {
     if (state.tokenBank[color] < sameColorMinimum) continue
@@ -131,10 +136,7 @@ export function validateAction(state: GameState, action: Action): RuleResult {
       return validAction()
     }
     case 'take-two-same': {
-      const lowBank = STANDARD_TOKEN_COLORS.filter((color) => state.tokenBank[color] >= 1).length < 3
-      const minimum = lowBank ? 2 : 4
-
-      if (state.tokenBank[action.color] < minimum) {
+      if (state.tokenBank[action.color] < sameColorTokenMinimum(state.tokenBank)) {
         return ruleError('INSUFFICIENT_BANK', 'The bank must contain enough tokens of that color.')
       }
 

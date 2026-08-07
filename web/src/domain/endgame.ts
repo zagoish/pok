@@ -104,7 +104,7 @@ export function advanceTurnWithSkips(state: GameState): GameState {
   }
 
   return {
-    ...resolveGameEnd(current),
+    ...current,
     phase: 'finished',
     winnerIds: getWinnerIds(current),
   }

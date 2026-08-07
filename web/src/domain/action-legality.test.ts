@@ -128,6 +128,83 @@ test('requires four bank tokens for a same-color action', () => {
   })
 })
 
+test('allows a same-color action on a two-token color when the bank has fewer than three colors', () => {
+  const state = withBank(createInitialGame(123), {
+    fire: 2,
+    water: 2,
+    grass: 0,
+    electric: 0,
+    psychic: 0,
+  })
+  const action: Action = { type: 'take-two-same', playerId: 'human', color: 'fire' }
+
+  expect(validateAction(state, action)).toEqual({
+    ok: true,
+    value: undefined,
+  })
+  expect(getLegalActions(state, 'human')).toContainEqual(action)
+  expect(getLegalActions(state, 'human')).toContainEqual({
+    type: 'take-two-same',
+    playerId: 'human',
+    color: 'water',
+  })
+})
+
+test('keeps a same-color action legal when only one two-token color remains in a low bank', () => {
+  const state = withBank(createInitialGame(123), {
+    fire: 2,
+    grass: 1,
+    water: 0,
+    electric: 0,
+    psychic: 0,
+  })
+
+  expect(validateAction(state, { type: 'take-two-same', playerId: 'human', color: 'fire' })).toEqual({
+    ok: true,
+    value: undefined,
+  })
+  expect(validateAction(state, { type: 'take-two-same', playerId: 'human', color: 'grass' })).toEqual({
+    ok: false,
+    error: {
+      code: 'INSUFFICIENT_BANK',
+      message: expect.any(String),
+    },
+  })
+})
+
+test('applies the four-token rule once the bank is no longer low', () => {
+  const state = withBank(createInitialGame(123), {
+    fire: 3,
+    water: 1,
+    grass: 1,
+    electric: 0,
+    psychic: 0,
+  })
+  const fireAction: Action = { type: 'take-two-same', playerId: 'human', color: 'fire' }
+  const waterAction: Action = { type: 'take-two-same', playerId: 'human', color: 'water' }
+
+  expect(validateAction(state, fireAction)).toEqual({
+    ok: false,
+    error: {
+      code: 'INSUFFICIENT_BANK',
+      message: expect.any(String),
+    },
+  })
+  expect(validateAction(state, waterAction)).toEqual({
+    ok: false,
+    error: {
+      code: 'INSUFFICIENT_BANK',
+      message: expect.any(String),
+    },
+  })
+  expect(
+    validateAction({ ...state, tokenBank: { ...state.tokenBank, fire: 4 } }, fireAction),
+  ).toEqual({
+    ok: true,
+    value: undefined,
+  })
+})
+
 test('does not offer actions to a player who is not current', () => {
   const state = createInitialGame(123)
 

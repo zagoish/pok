@@ -112,6 +112,7 @@ function playFullGame(seed: number): Outcome {
   }
 
   expect(state.finalRoundStartIndex).not.toBeNull()
+  expect(state.eventLog.some((event) => event.type === 'skip')).toBe(false)
   expect(state.round).toBe(1 + Math.floor(steps / state.players.length))
 
   return {

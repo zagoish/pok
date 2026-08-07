@@ -3,7 +3,6 @@ import {
   STANDARD_TOKEN_COLORS,
   type BonusInventory,
   type CardCost,
-  type StandardTokenColor,
   type TokenInventory,
 } from './model'
 
@@ -57,15 +56,18 @@ export function discardTokensToLimit(tokens: TokenInventory, limit: number): Tok
   if (total <= limit) return { ...tokens }
 
   const result = { ...tokens }
+
   while (total > limit) {
-    let colorToDiscard: StandardTokenColor | null = null
-    for (const color of STANDARD_TOKEN_COLORS) {
-      if (colorToDiscard === null || result[color] > result[colorToDiscard]) {
-        colorToDiscard = color
-      }
+    const mostHeld = STANDARD_TOKEN_COLORS.reduce(
+      (chosen, color) => (result[color] > result[chosen] ? color : chosen),
+      STANDARD_TOKEN_COLORS[0],
+    )
+
+    if (result[mostHeld] > 0) {
+      result[mostHeld] -= 1
+    } else {
+      result.rainbow -= 1
     }
-    if (colorToDiscard === null || result[colorToDiscard] === 0) break
-    result[colorToDiscard] -= 1
     total -= 1
   }
 

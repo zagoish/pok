@@ -40,7 +40,7 @@ test('every card and noble imageKey is present in ASSET_PATHS', () => {
 })
 
 test('ASSET_SOURCES records a source for every ASSET_PATHS entry and nothing else', () => {
-  expect(Object.keys(ASSET_SOURCES)).toEqual(Object.keys(ASSET_PATHS))
+  expect(new Set(Object.keys(ASSET_SOURCES))).toEqual(new Set(Object.keys(ASSET_PATHS)))
 
   for (const url of Object.values(ASSET_SOURCES)) {
     expect(url).toMatch(/^https:\/\//)
