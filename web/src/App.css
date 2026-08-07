@@ -867,7 +867,7 @@
   gap: 3px;
 }
 
-.card-view__costs .cost-chip {
+.card-view__costs .cost-chip:not(.cost-chip--free) {
   background: rgba(255, 248, 222, 0.92);
 }
 
