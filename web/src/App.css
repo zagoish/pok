@@ -2,7 +2,6 @@
   position: relative;
   isolation: isolate;
   min-height: 100vh;
-  overflow: hidden;
   color: var(--ink-0);
   background:
     linear-gradient(135deg, rgba(9, 21, 38, 0.8), rgba(7, 16, 31, 0.96)),
@@ -745,7 +744,7 @@
 .card-slot {
   display: grid;
   place-items: center;
-  color: rgba(148, 164, 179, 0.54);
+  color: var(--ink-2);
   border: 1px dashed rgba(148, 164, 179, 0.2);
   border-radius: 10px;
   font-family: var(--font-mono);

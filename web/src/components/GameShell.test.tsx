@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { expect, test } from 'vitest'
+import { expect, test, vi } from 'vitest'
 import App from '../App'
 import { CARDS } from '../data/cards'
 import { NOBLES } from '../data/nobles'
@@ -405,6 +405,62 @@ test('closes the pending noble modal with Escape while keeping the required choi
   const inlineChoices = screen.getAllByRole('button', { name: /选择/ })
   expect(inlineChoices).toHaveLength(2)
   expect(inlineChoices[0]).toHaveFocus()
+})
+
+test('confirms before restarting an active game and restarts when accepted', async () => {
+  const user = userEvent.setup()
+  const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
+  render(<App seed={123} />)
+
+  await user.click(screen.getByRole('button', { name: /拿取.*火.*水.*草/ }))
+
+  await user.click(screen.getByRole('button', { name: '重新开始' }))
+
+  expect(confirmSpy).toHaveBeenCalledTimes(1)
+  expect(within(screen.getByRole('region', { name: '对局记录' })).getByText(/第一枚宝石/)).toBeInTheDocument()
+  confirmSpy.mockRestore()
+})
+
+test('does not restart an active game when the confirmation is declined', async () => {
+  const user = userEvent.setup()
+  const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false)
+  render(<App seed={123} />)
+
+  await user.click(screen.getByRole('button', { name: /拿取.*火.*水.*草/ }))
+
+  await user.click(screen.getByRole('button', { name: '重新开始' }))
+
+  expect(confirmSpy).toHaveBeenCalledTimes(1)
+  expect(within(screen.getByRole('region', { name: '对局记录' })).getByText(/took one token of each/i)).toBeInTheDocument()
+  confirmSpy.mockRestore()
+})
+
+test('closes the rules modal and restarts after confirming an active game restart', async () => {
+  const user = userEvent.setup()
+  const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
+  render(<App seed={123} />)
+
+  await user.click(screen.getByRole('button', { name: /拿取.*火.*水.*草/ }))
+  await user.click(screen.getByRole('button', { name: '规则' }))
+  expect(screen.getByRole('dialog', { name: '对局规则' })).toBeInTheDocument()
+
+  fireEvent.click(screen.getByRole('button', { name: '重新开始' }))
+
+  expect(confirmSpy).toHaveBeenCalledTimes(1)
+  expect(screen.queryByRole('dialog', { name: '对局规则' })).not.toBeInTheDocument()
+  expect(within(screen.getByRole('region', { name: '对局记录' })).getByText(/第一枚宝石/)).toBeInTheDocument()
+  confirmSpy.mockRestore()
+})
+
+test('restarts without confirmation when the game has not begun', async () => {
+  const user = userEvent.setup()
+  const confirmSpy = vi.spyOn(window, 'confirm')
+  render(<App seed={123} />)
+
+  await user.click(screen.getByRole('button', { name: '重新开始' }))
+
+  expect(confirmSpy).not.toHaveBeenCalled()
+  confirmSpy.mockRestore()
 })
 
 test('renders the finished victory overlay and restarts the session', async () => {

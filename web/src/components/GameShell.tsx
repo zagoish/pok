@@ -33,6 +33,12 @@ export default function GameShell({ seed, initialState }: GameShellProps) {
     setRulesOpen(false)
     session.restart()
   }
+  const requestRestart = () => {
+    if (state.eventLog.length > 0 && state.phase !== 'finished') {
+      if (!window.confirm('当前对局尚未结束，重新开始将丢失全部进度。确定要重新开始吗？')) return
+    }
+    restartGame()
+  }
 
   useEffect(() => {
     if (state.phase === 'finished') setRulesOpen(false)
@@ -43,7 +49,7 @@ export default function GameShell({ seed, initialState }: GameShellProps) {
       <main className="game-shell">
         <header className="top-bar">
           <div className="brand-lockup">
-            <span className="brand-lockup__mark">◈</span>
+            <span className="brand-lockup__mark" aria-hidden="true">◈</span>
             <div>
               <span className="section-kicker">POKÉMON GEM LEAGUE / SOLO</span>
               <h1>宝可梦宝石联赛</h1>
@@ -61,7 +67,7 @@ export default function GameShell({ seed, initialState }: GameShellProps) {
             </div>
             <span className={`phase-chip phase-chip--${state.phase}`}>{phaseLabel(state.phase)}</span>
             <span className={`turn-indicator${humanTurn ? ' is-human' : ' is-ai'}`} role="status">
-              <span className="turn-indicator__dot" />
+              <span className="turn-indicator__dot" aria-hidden="true" />
               {humanTurn ? '你的回合' : `电脑行动中 · ${currentPlayer?.name ?? '对手'}`}
             </span>
           </div>
@@ -70,7 +76,7 @@ export default function GameShell({ seed, initialState }: GameShellProps) {
             <button id="rules-button" type="button" className="top-bar__button" onClick={() => setRulesOpen(true)}>
               规则
             </button>
-            <button id="restart-game-button" type="button" className="top-bar__button top-bar__button--restart" onClick={restartGame}>
+            <button id="restart-game-button" type="button" className="top-bar__button top-bar__button--restart" onClick={requestRestart}>
               重新开始
             </button>
           </div>
@@ -111,7 +117,7 @@ export default function GameShell({ seed, initialState }: GameShellProps) {
                     .slice(0, 6)
                     .map(({ event, originalIndex }) => (
                     <p key={`${event.type}-${event.playerId}-${originalIndex}`}>
-                      <span className="event-log__dot" />
+                      <span className="event-log__dot" aria-hidden="true" />
                       {event.message}
                     </p>
                   ))

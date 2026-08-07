@@ -68,13 +68,13 @@ export default function PlayerRail({ state }: PlayerRailProps) {
               <div className="token-strip" aria-label={`${player.name} 的代币`}>
                 {TOKEN_COLORS.map((color) => (
                   <span className="token-count" key={color}>
-                    <span className={`token-dot token-dot--${color}`} />
+                    <span className={`token-dot token-dot--${color}`} aria-hidden="true" />
                     <span>{COLOR_LABELS[color]}</span>
                     <strong>{player.tokens[color]}</strong>
                   </span>
                 ))}
                 <span className="token-count token-count--wild">
-                  <span className="token-dot token-dot--rainbow" />
+                  <span className="token-dot token-dot--rainbow" aria-hidden="true" />
                   <span>万能</span>
                   <strong>{player.tokens.rainbow}</strong>
                 </span>

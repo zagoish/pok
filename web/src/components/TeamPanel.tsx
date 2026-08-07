@@ -144,7 +144,7 @@ export default function TeamPanel({ player, selectedCardId, selectCard, disabled
           <div className="bonus-track__grid">
             {STANDARD_TOKEN_COLORS.map((color) => (
               <span className={`bonus-count bonus-count--${color}`} key={color}>
-                <span className="token-dot" />
+                <span className="token-dot" aria-hidden="true" />
                 <span>{COLOR_LABELS[color]}：{player.bonuses[color]}</span>
               </span>
             ))}

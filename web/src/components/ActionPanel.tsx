@@ -56,7 +56,7 @@ function TokenPill({ color, count }: { color: StandardTokenColor | 'rainbow'; co
   const label = color === 'rainbow' ? '万能' : COLOR_LABELS[color]
   return (
     <span className="action-token-pill">
-      <span className={`token-dot token-dot--${color}`} />
+      <span className={`token-dot token-dot--${color}`} aria-hidden="true" />
       <span>{label}</span>
       <strong>{count}</strong>
     </span>
@@ -97,7 +97,7 @@ export default function ActionPanel({
       </div>
 
       <div className="current-player-banner">
-        <span className="current-player-banner__pulse" />
+        <span className="current-player-banner__pulse" aria-hidden="true" />
         <div>
           <strong>{currentPlayer?.name ?? '未知训练家'}</strong>
           <span>
@@ -135,7 +135,7 @@ export default function ActionPanel({
                 payment.rows.map((row) => (
                   <div className="payment-row" key={row.color}>
                     <span>
-                      <span className={`token-dot token-dot--${row.color}`} />
+                      <span className={`token-dot token-dot--${row.color}`} aria-hidden="true" />
                       {COLOR_LABELS[row.color]}
                     </span>
                     <span>
@@ -149,7 +149,7 @@ export default function ActionPanel({
               )}
               {payment.rainbowPayment > 0 ? (
                 <div className="payment-row payment-row--wild">
-                  <span><span className="token-dot token-dot--rainbow" />万能</span>
+                  <span><span className="token-dot token-dot--rainbow" aria-hidden="true" />万能</span>
                   <strong>{payment.rainbowPayment}</strong>
                 </div>
               ) : null}

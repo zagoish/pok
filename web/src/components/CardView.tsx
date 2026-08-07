@@ -57,7 +57,7 @@ export default function CardView({ card, selected, selectCard, disabled = false 
 
       <span className="card-view__name">{card.name}</span>
       <span className="card-view__bonus">
-        奖励 <span className={`token-dot token-dot--${card.bonusType}`} />
+        奖励 <span className={`token-dot token-dot--${card.bonusType}`} aria-hidden="true" />
         {COLOR_LABELS[card.bonusType]}
       </span>
 
@@ -65,7 +65,7 @@ export default function CardView({ card, selected, selectCard, disabled = false 
         {costs.length > 0 ? (
           costs.map((color) => (
             <span key={color} className={`cost-chip cost-chip--${color}`}>
-              <span className="token-dot" />
+              <span className="token-dot" aria-hidden="true" />
               {card.cost[color]}
             </span>
           ))

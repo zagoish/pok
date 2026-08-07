@@ -114,7 +114,7 @@ export default function NoblePanel({ state, claimNoble }: NoblePanelProps) {
                   event.currentTarget.hidden = true
                 }}
               />
-              <span>{noble.name.slice(0, 1)}</span>
+              <span aria-hidden="true">{noble.name.slice(0, 1)}</span>
             </div>
             <div className="noble-card__body">
               <div className="noble-card__title">
@@ -125,7 +125,7 @@ export default function NoblePanel({ state, claimNoble }: NoblePanelProps) {
               <div className="requirement-row">
                 {requirementText(noble.id).map((requirement) => (
                   <span key={requirement.color} className={`requirement-chip requirement-chip--${requirement.color}`}>
-                    <span className="token-dot" />
+                    <span className="token-dot" aria-hidden="true" />
                     {requirement.label} {requirement.value}
                   </span>
                 ))}
