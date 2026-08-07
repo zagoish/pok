@@ -873,7 +873,7 @@ button.purchased-card:disabled {
   display: block;
 }
 
-.purchased-card__details span {
+.purchased-card__details > span:last-child {
   display: block;
   margin-top: 4px;
   color: var(--ink-3);
@@ -1750,7 +1750,7 @@ button.purchased-card:disabled {
   }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 850px) {
   .top-bar,
   .table-layout {
     width: min(100% - 20px, 600px);
