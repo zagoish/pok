@@ -1305,36 +1305,157 @@ button.purchased-card:disabled {
   padding-bottom: 14px;
 }
 
-.action-group + .action-group {
-  margin-top: 11px;
+.token-stack-row {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 5px;
 }
 
-.action-group__label {
-  display: block;
-  margin-bottom: 5px;
+.token-stack {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  min-height: 108px;
+  padding: 7px 4px 8px;
+  color: var(--ink-1);
+  border: 1px solid rgba(148, 164, 179, 0.16);
+  border-radius: 9px;
+  background: linear-gradient(180deg, rgba(22, 45, 69, 0.5), rgba(13, 26, 42, 0.62));
+  cursor: pointer;
+  transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
+}
+
+.token-stack:hover:not(:disabled) {
+  border-color: rgba(81, 208, 192, 0.55);
+  background: rgba(27, 143, 141, 0.18);
+  transform: translateY(-2px);
+}
+
+.token-stack.is-selected {
+  border-color: var(--amber-0);
+  box-shadow: 0 0 0 1px rgba(248, 199, 103, 0.35), 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.token-stack:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  filter: saturate(0.5);
+}
+
+.token-stack__chips {
+  position: relative;
+  width: 30px;
+  height: var(--stack-height);
+  min-height: 10px;
+  transition: height 200ms ease;
+}
+
+.token-stack__chip {
+  position: absolute;
+  width: 26px;
+  height: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 6px 6px 3px 3px;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+.token-stack--fire .token-stack__chip {
+  background: #e66b52;
+}
+
+.token-stack--water .token-stack__chip {
+  background: #55aee8;
+}
+
+.token-stack--grass .token-stack__chip {
+  background: #65bd76;
+}
+
+.token-stack--electric .token-stack__chip {
+  background: #e9c94d;
+}
+
+.token-stack--psychic .token-stack__chip {
+  background: #b78adb;
+}
+
+.token-stack--rainbow .token-stack__chip {
+  background: conic-gradient(#f16f64, #efc65d, #6ac875, #5baee4, #b77cdc, #f16f64);
+}
+
+.token-stack__label {
+  color: var(--ink-2);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.token-stack__held {
+  color: var(--ink-0);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.token-stack__bank {
   color: var(--ink-3);
   font-family: var(--font-mono);
   font-size: 8px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
-.action-button-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+.token-selection {
+  margin: 10px 0 0;
+  padding: 10px;
+  border: 1px solid rgba(81, 208, 192, 0.2);
+  border-radius: var(--radius-md);
+  background: rgba(16, 63, 80, 0.26);
+}
+
+.token-selection__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.picked-chip {
+  display: inline-flex;
+  align-items: center;
   gap: 4px;
+  padding: 5px 8px;
+  color: var(--ink-0);
+  border: 1px solid rgba(248, 199, 103, 0.4);
+  border-radius: 999px;
+  background: rgba(92, 59, 28, 0.35);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 150ms ease, background 150ms ease;
 }
 
-.action-button-grid--same {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+.picked-chip:hover {
+  border-color: var(--amber-0);
+  background: rgba(92, 59, 28, 0.5);
 }
 
-.action-button--token {
-  min-height: 31px;
-  padding: 5px 4px;
-  color: var(--ink-1);
-  font-size: 9px;
-  font-weight: 600;
+.token-hint {
+  margin: 8px 0 0;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.token-hint--success {
+  color: var(--teal-0);
+}
+
+.token-hint--error {
+  color: var(--red-0);
+}
+
+.token-confirm {
+  width: 100%;
+  margin-top: 10px;
 }
 
 .rule-error {
@@ -1737,18 +1858,8 @@ button.purchased-card:disabled {
     position: static;
   }
 
-  .action-panel .token-actions {
-    display: grid;
-    grid-template-columns: 1fr 1.35fr;
-    gap: 0 18px;
-  }
-
-  .action-panel .token-actions > .subsection-heading {
-    grid-column: 1 / -1;
-  }
-
-  .action-panel .token-actions > .action-group + .action-group {
-    margin-top: 0;
+  .action-panel .token-stack-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -1817,14 +1928,6 @@ button.purchased-card:disabled {
 
   .noble-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .action-panel .token-actions {
-    display: block;
-  }
-
-  .action-panel .token-actions > .action-group + .action-group {
-    margin-top: 11px;
   }
 
   .choice-backdrop,

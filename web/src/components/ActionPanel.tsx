@@ -1,36 +1,16 @@
+import { useEffect, useState } from 'react'
 import { CARDS } from '../data/cards'
 import { getLegalActions } from '../domain/action-legality'
 import { totalTokens } from '../domain/inventory'
 import { getPaymentBreakdown } from '../domain/payment'
 import {
+  STANDARD_TOKEN_COLORS,
   type Action,
   type Card,
   type GameState,
   type StandardTokenColor,
 } from '../domain/model'
-
-const COLOR_LABELS: Record<StandardTokenColor, string> = {
-  fire: '火',
-  water: '水',
-  grass: '草',
-  electric: '电',
-  psychic: '超能',
-}
-
-const THREE_DIFFERENT: Array<[StandardTokenColor, StandardTokenColor, StandardTokenColor]> = [
-  ['fire', 'water', 'grass'],
-  ['fire', 'water', 'electric'],
-  ['fire', 'water', 'psychic'],
-  ['fire', 'grass', 'electric'],
-  ['fire', 'grass', 'psychic'],
-  ['fire', 'electric', 'psychic'],
-  ['water', 'grass', 'electric'],
-  ['water', 'grass', 'psychic'],
-  ['water', 'electric', 'psychic'],
-  ['grass', 'electric', 'psychic'],
-]
-
-const ACTION_COLORS: StandardTokenColor[] = ['fire', 'water', 'grass', 'electric', 'psychic']
+import TokenStack, { COLOR_LABELS, RAINBOW_LABEL } from './TokenStack'
 
 interface ActionPanelProps {
   state: GameState
@@ -53,7 +33,7 @@ function findSelectedCard(selectedCardId: string | null): Card | undefined {
 }
 
 function TokenPill({ color, count }: { color: StandardTokenColor | 'rainbow'; count: number }) {
-  const label = color === 'rainbow' ? '万能' : COLOR_LABELS[color]
+  const label = color === 'rainbow' ? RAINBOW_LABEL : COLOR_LABELS[color]
   return (
     <span className="action-token-pill">
       <span className={`token-dot token-dot--${color}`} aria-hidden="true" />
@@ -61,6 +41,25 @@ function TokenPill({ color, count }: { color: StandardTokenColor | 'rainbow'; co
       <strong>{count}</strong>
     </span>
   )
+}
+
+interface Hint {
+  kind: 'success' | 'error'
+  text: string
+}
+
+function formedAction(selection: StandardTokenColor[]): Action | null {
+  if (selection.length === 3 && new Set(selection).size === 3) {
+    return {
+      type: 'take-three-different',
+      playerId: 'human',
+      colors: selection as [StandardTokenColor, StandardTokenColor, StandardTokenColor],
+    }
+  }
+  if (selection.length === 2 && selection[0] === selection[1]) {
+    return { type: 'take-two-same', playerId: 'human', color: selection[0] }
+  }
+  return null
 }
 
 export default function ActionPanel({
@@ -75,6 +74,60 @@ export default function ActionPanel({
   const selectedCard = findSelectedCard(selectedCardId)
   const isHumanTurn = currentPlayer?.id === 'human'
   const locked = !isHumanTurn || state.phase === 'finished' || state.pendingNobleIds.length > 0
+  const [selection, setSelection] = useState<StandardTokenColor[]>([])
+  const [hint, setHint] = useState<Hint | null>(null)
+  const formed = formedAction(selection)
+
+  useEffect(() => {
+    if (locked) {
+      setSelection([])
+      setHint(null)
+    }
+  }, [locked])
+
+  const handleStackPick = (color: StandardTokenColor) => {
+    const picked = selection.filter((candidate) => candidate === color).length
+
+    if (picked >= 2) {
+      setHint({ kind: 'error', text: '不能拿取三个相同徽章' })
+      return
+    }
+
+    if (picked === 1) {
+      if (state.tokenBank[color] < 4) {
+        setHint({ kind: 'error', text: '银行该色不足四枚' })
+        return
+      }
+      setSelection([color, color])
+      setHint({ kind: 'success', text: `已选择：拿取两枚${COLOR_LABELS[color]}徽章` })
+      return
+    }
+
+    if (selection.length >= 3) return
+
+    const next = [...selection, color]
+    setSelection(next)
+    if (next.length === 3) {
+      setHint({
+        kind: 'success',
+        text: `已选择：拿取三枚不同徽章（${next.map((candidate) => COLOR_LABELS[candidate]).join('、')}）`,
+      })
+    } else {
+      setHint(null)
+    }
+  }
+
+  const removePick = (index: number) => {
+    setSelection((current) => current.filter((_, candidateIndex) => candidateIndex !== index))
+    setHint(null)
+  }
+
+  const confirmTake = () => {
+    if (!formed) return
+    dispatch(formed)
+    setSelection([])
+    setHint(null)
+  }
   const source = selectedCard && human?.reservedCards.includes(selectedCard.id) ? 'reserved' : 'market'
   const selectedBuyAction = selectedCard && human
     ? ({ type: 'buy-card', playerId: 'human', cardId: selectedCard.id, source } satisfies Action)
@@ -113,7 +166,7 @@ export default function ActionPanel({
             <strong>{totalTokens(human.tokens)} / 10</strong>
           </div>
           <div className="action-token-grid">
-            {ACTION_COLORS.map((color) => (
+            {STANDARD_TOKEN_COLORS.map((color) => (
               <TokenPill color={color} count={human.tokens[color]} key={color} />
             ))}
             <TokenPill color="rainbow" count={human.tokens.rainbow} />
@@ -192,55 +245,64 @@ export default function ActionPanel({
 
       <div className="token-actions">
         <div className="subsection-heading">
-          <h3>拿取代币</h3>
-          <span>规则决定可用性</span>
+          <h3>拿取徽章</h3>
+          <span>点击堆叠选择</span>
         </div>
-        <div className="action-group">
-          <span className="action-group__label">三种不同</span>
-          <div className="action-button-grid">
-            {THREE_DIFFERENT.map((colors) => {
-              const action = {
-                type: 'take-three-different',
-                playerId: 'human',
-                colors,
-              } satisfies Action
-              const legal = isLegalAction(legalActions, action)
-
-              return (
+        <div className="token-stack-row">
+          {STANDARD_TOKEN_COLORS.map((color) => (
+            <TokenStack
+              key={color}
+              color={color}
+              held={human.tokens[color]}
+              bank={state.tokenBank[color]}
+              selected={selection.includes(color)}
+              disabled={locked || state.tokenBank[color] === 0}
+              onPick={() => handleStackPick(color)}
+            />
+          ))}
+          <TokenStack
+            color="rainbow"
+            held={human.tokens.rainbow}
+            bank={state.tokenBank.rainbow}
+            selected={false}
+            disabled={locked}
+            onPick={() => setHint({ kind: 'error', text: '彩虹能量只能通过预留或购买获得' })}
+          />
+        </div>
+        {selection.length > 0 || hint ? (
+          <div className="token-selection">
+            <div className="token-selection__chips">
+              {selection.map((color, index) => (
                 <button
                   type="button"
-                  className="action-button action-button--token"
-                  disabled={!legal}
-                  onClick={legal ? () => dispatch(action) : undefined}
-                  key={colors.join('-')}
+                  key={`${color}-${index}`}
+                  className={`picked-chip picked-chip--${color}`}
+                  aria-label={`移除${COLOR_LABELS[color]}徽章`}
+                  onClick={() => removePick(index)}
                 >
-                  拿取 {colors.map((color) => COLOR_LABELS[color]).join(' / ')}
+                  <span className={`token-dot token-dot--${color}`} aria-hidden="true" />
+                  {COLOR_LABELS[color]}
                 </button>
+              ))}
+            </div>
+            {hint ? (
+              hint.kind === 'error' ? (
+                <p className="token-hint token-hint--error" role="alert">{hint.text}</p>
+              ) : (
+                <p className="token-hint token-hint--success" role="status">{hint.text}</p>
               )
-            })}
+            ) : null}
+            {formed ? (
+              <button
+                type="button"
+                className="action-button action-button--primary token-confirm"
+                onClick={confirmTake}
+              >
+                执行拿取
+              </button>
+            ) : null}
           </div>
-        </div>
-        <div className="action-group">
-          <span className="action-group__label">两枚同色</span>
-          <div className="action-button-grid action-button-grid--same">
-            {ACTION_COLORS.map((color) => {
-              const action = { type: 'take-two-same', playerId: 'human', color } satisfies Action
-              const legal = isLegalAction(legalActions, action)
-
-              return (
-                <button
-                  type="button"
-                  className="action-button action-button--token"
-                  disabled={!legal}
-                  onClick={legal ? () => dispatch(action) : undefined}
-                  key={color}
-                >
-                  拿取两枚 {COLOR_LABELS[color]}
-                </button>
-              )
-            })}
-          </div>
-        </div>
+        ) : null}
       </div>
 
       {lastError ? (

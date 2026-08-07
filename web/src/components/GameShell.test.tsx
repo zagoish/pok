@@ -16,6 +16,13 @@ function cardFor(state: GameState, tier: 1 | 2 | 3) {
   return card
 }
 
+async function takeThreeTokens(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(screen.getByRole('button', { name: /火徽章，持有 0，银行 7/ }))
+  await user.click(screen.getByRole('button', { name: /水徽章，持有 0，银行 7/ }))
+  await user.click(screen.getByRole('button', { name: /草徽章，持有 0，银行 7/ }))
+  await user.click(screen.getByRole('button', { name: '执行拿取' }))
+}
+
 function createPendingNobleState(): GameState {
   const state = structuredClone(createInitialGame(123))
   state.players[0] = {
@@ -183,10 +190,10 @@ test('dispatches a legal three-different-token action through the session', asyn
   const user = userEvent.setup()
   render(<App seed={123} />)
 
-  const actionButton = screen.getByRole('button', { name: /拿取.*火.*水.*草/ })
-  expect(actionButton).toBeEnabled()
+  const fireStack = screen.getByRole('button', { name: /火徽章，持有 0，银行 7/ })
+  expect(fireStack).toBeEnabled()
 
-  await user.click(actionButton)
+  await takeThreeTokens(user)
 
   const eventLog = screen.getByRole('region', { name: '对局记录' })
   expect(within(eventLog).getByText(/玩家 took one token of each: fire, water, grass/i)).toBeInTheDocument()
@@ -286,16 +293,16 @@ test('shows the AI-thinking indicator and locks human controls during an AI turn
   render(<App initialState={createAiTurnState()} />)
 
   expect(within(screen.getByRole('region', { name: '你的行动' })).getByText(/电脑行动中 · 小智/)).toBeInTheDocument()
-  expect(screen.getByRole('button', { name: /拿取.*火.*水.*草/ })).toBeDisabled()
+  expect(screen.getByRole('button', { name: /火徽章，持有 0，银行 7/ })).toBeDisabled()
 })
 
 test('does not dispatch an illegal token action when the bank lacks one requested color', async () => {
   const user = userEvent.setup()
   render(<App initialState={createIllegalTokenState()} />)
 
-  const actionButton = screen.getByRole('button', { name: /拿取.*火.*水.*草/ })
-  expect(actionButton).toBeDisabled()
-  await user.click(actionButton)
+  const fireStack = screen.getByRole('button', { name: /火徽章，持有 0，银行 0/ })
+  expect(fireStack).toBeDisabled()
+  await user.click(fireStack)
 
   expect(within(screen.getByRole('region', { name: '对局记录' })).getByText(/第一枚宝石/)).toBeInTheDocument()
 })
@@ -321,7 +328,7 @@ test('keeps an existing event node stable when a newer event is appended', async
 
   const eventLog = screen.getByRole('region', { name: '对局记录' })
   const existingEvent = within(eventLog).getByText('existing event')
-  await user.click(screen.getByRole('button', { name: /拿取.*火.*水.*草/ }))
+  await takeThreeTokens(user)
 
   expect(within(eventLog).getByText('existing event')).toBe(existingEvent)
 })
@@ -370,7 +377,7 @@ test('renders pending noble choices and claims the selected noble', async () => 
   const dialog = screen.getByRole('dialog', { name: '选择贵族' })
   const choices = within(dialog).getAllByRole('button', { name: /选择/ })
   expect(choices).toHaveLength(2)
-  expect(screen.getByRole('button', { name: /拿取.*火.*水.*草/ })).toBeDisabled()
+  expect(screen.getByRole('button', { name: /火徽章，持有 0，银行 7/ })).toBeDisabled()
 
   await user.click(choices[0])
 
@@ -412,7 +419,7 @@ test('confirms before restarting an active game and restarts when accepted', asy
   const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
   render(<App seed={123} />)
 
-  await user.click(screen.getByRole('button', { name: /拿取.*火.*水.*草/ }))
+  await takeThreeTokens(user)
 
   await user.click(screen.getByRole('button', { name: '重新开始' }))
 
@@ -426,7 +433,7 @@ test('does not restart an active game when the confirmation is declined', async 
   const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false)
   render(<App seed={123} />)
 
-  await user.click(screen.getByRole('button', { name: /拿取.*火.*水.*草/ }))
+  await takeThreeTokens(user)
 
   await user.click(screen.getByRole('button', { name: '重新开始' }))
 
@@ -440,7 +447,7 @@ test('closes the rules modal and restarts after confirming an active game restar
   const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
   render(<App seed={123} />)
 
-  await user.click(screen.getByRole('button', { name: /拿取.*火.*水.*草/ }))
+  await takeThreeTokens(user)
   await user.click(screen.getByRole('button', { name: '规则' }))
   expect(screen.getByRole('dialog', { name: '对局规则' })).toBeInTheDocument()
 
