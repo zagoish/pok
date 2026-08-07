@@ -12,7 +12,10 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "preview": "vite preview",
-    "download:assets": "node scripts/download-assets.mjs"
+    "download:assets": "node scripts/download-assets.mjs",
+    "dist:win": "vite build && electron-builder --win nsis",
+    "electron:dev": "vite",
+    "electron:preview": "electron ."
   },
   "dependencies": {
     "react": "19.2.8",
@@ -29,6 +32,28 @@
     "jsdom": "26.1.0",
     "typescript": "6.0.2",
     "vite": "6.3.5",
-    "vitest": "4.1.10"
+    "vitest": "4.1.10",
+    "electron": "33.4.11",
+    "electron-builder": "26.15.3"
+  },
+  "main": "electron/main.cjs",
+  "build": {
+    "appId": "com.pokemonleague.splendor",
+    "productName": "宝可梦宝石联赛",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**",
+      "electron/**",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "artifactName": "PokemonGemLeague-${version}-setup.${ext}"
+    }
+  },
+  "overrides": {
+    "@noble/hashes": "1.8.0"
   }
 }
