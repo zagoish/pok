@@ -10,7 +10,7 @@ const WEB_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '.
 const PUBLIC_ROOT = resolve(WEB_ROOT, 'web', 'public')
 
 function assetFileOnDisk(path: string): string {
-  return resolve(PUBLIC_ROOT, path.replace(/^\//, ''))
+  return resolve(PUBLIC_ROOT, path.replace(/^(\.\/|\/)/, ''))
 }
 
 test('every ASSET_PATHS value resolves to an existing non-empty file under web/public', () => {
@@ -20,7 +20,7 @@ test('every ASSET_PATHS value resolves to an existing non-empty file under web/p
   for (const key of keys) {
     const assetPath = ASSET_PATHS[key]
     expect(assetPath).toBeDefined()
-    expect(assetPath).toMatch(/^\/assets\/pokemon\/.+\.png$/)
+    expect(assetPath).toMatch(/^(\.\/|\/)assets\/pokemon\/.+\.png$/)
 
     const file = assetFileOnDisk(assetPath)
     expect(file.startsWith(PUBLIC_ROOT)).toBe(true)
