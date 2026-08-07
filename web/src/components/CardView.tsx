@@ -55,16 +55,13 @@ export default function CardView({ card, selected, selectCard, disabled = false 
           </span>
           <span className="card-view__tier">
             <span className={`pokeball pokeball--tier-${card.tier}`} aria-hidden="true" />
-            <span className="card-view__tier-label">{card.tier}</span>
           </span>
         </span>
-        <span className="card-view__points" data-count={card.points} aria-hidden="true">
-          {card.points > 0
-            ? Array.from({ length: card.points }, (_, index) => (
-                <span key={index} className="pokeball pokeball--points" />
-              ))
-            : null}
-        </span>
+        {card.points > 0 ? (
+          <span className="card-view__points" data-count={card.points} aria-hidden="true">
+            <span className="card-view__points-value">{card.points}</span>
+          </span>
+        ) : null}
       </span>
 
       <span className="card-view__art" aria-hidden="true">

@@ -16,22 +16,28 @@ function renderCard(id: string) {
   return { card, ...utils }
 }
 
-test('renders no pokeball icons for a zero-point card', () => {
+test('renders no points badge and no points pokeballs for a zero-point card', () => {
   const { container } = renderCard('tier-1-002')
-  expect(container.querySelectorAll('.card-view__points .pokeball')).toHaveLength(0)
-  expect(container.querySelector('.card-view__points')).toHaveAttribute('data-count', '0')
+  expect(container.querySelector('.card-view__points')).toBeNull()
+  expect(container.querySelectorAll('.pokeball--points')).toHaveLength(0)
 })
 
-test('renders one pokeball icon per point on a four-point card', () => {
+test('renders a numeric score on a four-point card', () => {
   const { container, card } = renderCard('tier-3-001')
   expect(card.points).toBe(4)
-  expect(container.querySelectorAll('.card-view__points .pokeball')).toHaveLength(4)
+  const points = container.querySelector('.card-view__points')
+  expect(points).not.toBeNull()
+  expect(points?.querySelector('.card-view__points-value')?.textContent).toBe('4')
+  expect(points?.querySelectorAll('.pokeball')).toHaveLength(0)
 })
 
-test('renders one pokeball icon per point on a five-point card', () => {
+test('renders a numeric score on a five-point card', () => {
   const { container, card } = renderCard('tier-3-002')
   expect(card.points).toBe(5)
-  expect(container.querySelectorAll('.card-view__points .pokeball')).toHaveLength(5)
+  const points = container.querySelector('.card-view__points')
+  expect(points).not.toBeNull()
+  expect(points?.querySelector('.card-view__points-value')?.textContent).toBe('5')
+  expect(points?.querySelectorAll('.pokeball')).toHaveLength(0)
 })
 
 test('artwork fills the lower card face without the old framed art block', () => {
@@ -57,21 +63,33 @@ test('places name and every cost chip inside the bottom footer scrim', () => {
   expect(footer?.querySelector('.cost-chip--fire')).not.toBeNull()
 })
 
-test('renders the tier pokeball variant class and a visible numeric label for tiers 1, 2 and 3', () => {
+test('renders the tier pokeball variant class and no visible tier digits for tiers 1, 2 and 3', () => {
   const t1 = renderCard('tier-1-002')
   expect(t1.container.querySelector('.pokeball--tier-1')).not.toBeNull()
-  expect(t1.container.querySelector('.card-view__tier-label')?.textContent).toBe('1')
+  expect(t1.container.querySelector('.card-view__tier-label')).toBeNull()
+  expect(t1.container.querySelector('.card-view__tier')?.textContent).toBe('')
   expect(t1.container.querySelector('button')).toHaveAttribute('data-tier', '1')
 
   const t2 = renderCard('tier-2-002')
   expect(t2.container.querySelector('.pokeball--tier-2')).not.toBeNull()
-  expect(t2.container.querySelector('.card-view__tier-label')?.textContent).toBe('2')
+  expect(t2.container.querySelector('.card-view__tier-label')).toBeNull()
+  expect(t2.container.querySelector('.card-view__tier')?.textContent).toBe('')
   expect(t2.container.querySelector('button')).toHaveAttribute('data-tier', '2')
 
   const t3 = renderCard('tier-3-001')
   expect(t3.container.querySelector('.pokeball--tier-3')).not.toBeNull()
-  expect(t3.container.querySelector('.card-view__tier-label')?.textContent).toBe('3')
+  expect(t3.container.querySelector('.card-view__tier-label')).toBeNull()
+  expect(t3.container.querySelector('.card-view__tier')?.textContent).toBe('')
   expect(t3.container.querySelector('button')).toHaveAttribute('data-tier', '3')
+})
+
+test('stacks the bonus badge above the tier pokeball in the meta column', () => {
+  const { container } = renderCard('tier-1-002')
+
+  const meta = container.querySelector('.card-view__meta')
+  expect(meta).not.toBeNull()
+  const children = Array.from(meta?.children ?? [])
+  expect(children.map((node) => node.className)).toEqual(['card-view__bonus', 'card-view__tier'])
 })
 
 test('renders the bonus dot inside the top line, not in a bottom row', () => {
@@ -100,15 +118,59 @@ test('shows a visible single-character label on the bonus badge for every bonus 
   }
 })
 
-test('every card renders one pokeball per point and a matching data-count', () => {
+test('every point-bearing card renders a numeric score with a matching data-count', () => {
   for (const card of CARDS) {
     const { container } = renderCard(card.id)
-    expect(container.querySelectorAll('.card-view__points .pokeball')).toHaveLength(card.points)
-    expect(container.querySelector('.card-view__points')).toHaveAttribute(
-      'data-count',
-      String(card.points),
-    )
+    const points = container.querySelector('.card-view__points')
+    expect(container.querySelectorAll('.card-view__points .pokeball')).toHaveLength(0)
+    if (card.points > 0) {
+      expect(points, `points badge for ${card.id}`).not.toBeNull()
+      expect(points?.querySelector('.card-view__points-value')?.textContent, card.id).toBe(
+        String(card.points),
+      )
+      expect(points).toHaveAttribute('data-count', String(card.points))
+    } else {
+      expect(points, `points badge for ${card.id}`).toBeNull()
+    }
   }
+})
+
+test('free cards share the same size hooks as cost cards', () => {
+  const freeCard: Card = {
+    tier: 1,
+    id: 'free-test',
+    name: 'Freebie',
+    imageKey: 'pokemon-001',
+    points: 0,
+    bonusType: 'fire',
+    cost: { fire: 0, water: 0, grass: 0, electric: 0, psychic: 0 },
+  }
+  const paid = renderCard('tier-1-002')
+  const free = render(<CardView card={freeCard} selected={false} selectCard={() => undefined} />)
+
+  const paidButton = paid.container.querySelector('button')
+  const freeButton = free.container.querySelector('button')
+  expect(paidButton?.className).toBe(freeButton?.className)
+  expect(freeButton?.className).not.toContain('free')
+
+  for (const selector of [
+    '.card-view__topline',
+    '.card-view__meta',
+    '.card-view__bonus',
+    '.card-view__tier',
+    '.card-view__art',
+    '.card-view__footer',
+    '.card-view__name',
+    '.card-view__costs',
+  ]) {
+    expect(paid.container.querySelector(selector), `paid ${selector}`).not.toBeNull()
+    expect(free.container.querySelector(selector), `free ${selector}`).not.toBeNull()
+  }
+
+  const freeChip = free.container.querySelector('.cost-chip--free')
+  expect(freeChip?.classList.contains('cost-chip')).toBe(true)
+  expect(freeChip?.textContent).toBe('免费')
+  expect(free.container.querySelectorAll('.card-view__footer .cost-chip')).toHaveLength(1)
 })
 
 test('keeps name, tier, points, bonus, and every non-zero cost in the accessible label', () => {
