@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { GameState } from '../domain/model'
+import type { AiSpeed } from '../game/useGameSession'
 import { useGameSession } from '../game/useGameSession'
 import ActionPanel from './ActionPanel'
 import MarketBoard from './MarketBoard'
@@ -21,7 +22,8 @@ function phaseLabel(phase: GameState['phase']) {
 }
 
 export default function GameShell({ seed, initialState }: GameShellProps) {
-  const session = useGameSession(seed, initialState)
+  const [speed, setSpeed] = useState<AiSpeed>(1)
+  const session = useGameSession(seed, initialState, speed)
   const [rulesOpen, setRulesOpen] = useState(false)
   const { state, selectedCardId, lastError, pendingNobleIds } = session
   const currentPlayer = state.players[state.currentPlayerIndex]
@@ -73,6 +75,27 @@ export default function GameShell({ seed, initialState }: GameShellProps) {
           </div>
 
           <div className="top-bar__actions">
+            <div className="speed-control">
+              <span className="speed-control__label" id="speed-control-label">速度</span>
+              <div className="speed-control__segmented" role="group" aria-labelledby="speed-control-label">
+                <button
+                  type="button"
+                  className="speed-control__option"
+                  aria-pressed={speed === 1}
+                  onClick={() => setSpeed(1)}
+                >
+                  1×
+                </button>
+                <button
+                  type="button"
+                  className="speed-control__option"
+                  aria-pressed={speed === 2}
+                  onClick={() => setSpeed(2)}
+                >
+                  2×
+                </button>
+              </div>
+            </div>
             <button id="rules-button" type="button" className="top-bar__button" onClick={() => setRulesOpen(true)}>
               规则
             </button>

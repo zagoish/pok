@@ -7,7 +7,13 @@ import { createInitialGame } from '../domain/setup'
 import type { Action, CardId, GameState, NobleId, RuleError } from '../domain/model'
 
 const DEFAULT_SEED = 123
-const AI_TURN_DELAY_MS = 400
+
+export type AiSpeed = 1 | 2
+
+const AI_TURN_DELAY_MS: Record<AiSpeed, number> = {
+  1: 1400,
+  2: 500,
+}
 
 interface SessionState {
   state: GameState
@@ -84,7 +90,11 @@ export interface GameSession {
   pendingNobleIds: NobleId[]
 }
 
-export function useGameSession(seed = DEFAULT_SEED, initialState?: GameState): GameSession {
+export function useGameSession(
+  seed = DEFAULT_SEED,
+  initialState?: GameState,
+  speed: AiSpeed = 1,
+): GameSession {
   const [session, updateSession] = useReducer(
     sessionReducer,
     { seed, initialState },
@@ -130,7 +140,7 @@ export function useGameSession(seed = DEFAULT_SEED, initialState?: GameState): G
           },
         })
       }
-    }, AI_TURN_DELAY_MS)
+    }, AI_TURN_DELAY_MS[speed])
 
     aiTimerRef.current = timer
 
@@ -141,7 +151,7 @@ export function useGameSession(seed = DEFAULT_SEED, initialState?: GameState): G
         aiTimerRef.current = null
       }
     }
-  }, [session.state])
+  }, [session.state, speed])
 
   return {
     state: session.state,

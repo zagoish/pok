@@ -1,6 +1,6 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { expect, test, vi } from 'vitest'
+import { afterEach, expect, test, vi } from 'vitest'
 import App from '../App'
 import { CARDS } from '../data/cards'
 import { NOBLES } from '../data/nobles'
@@ -131,6 +131,64 @@ function createLoggedState(): GameState {
   state.eventLog = [{ type: 'seed', playerId: 'human', message: 'existing event' }]
   return state
 }
+
+afterEach(() => {
+  vi.clearAllTimers()
+  vi.useRealTimers()
+})
+
+test('speed control toggles aria-pressed and re-schedules the pending ai timer', () => {
+  vi.useFakeTimers()
+  render(<App seed={123} />)
+
+  expect(screen.getByText('速度')).toBeInTheDocument()
+  const oneX = screen.getByRole('button', { name: '1×' })
+  const twoX = screen.getByRole('button', { name: '2×' })
+  expect(oneX).toHaveAttribute('aria-pressed', 'true')
+  expect(twoX).toHaveAttribute('aria-pressed', 'false')
+
+  act(() => {
+    fireEvent.click(screen.getByRole('button', { name: /火徽章，持有 0，银行 7/ }))
+  })
+  act(() => {
+    fireEvent.click(screen.getByRole('button', { name: /水徽章，持有 0，银行 7/ }))
+  })
+  act(() => {
+    fireEvent.click(screen.getByRole('button', { name: /草徽章，持有 0，银行 7/ }))
+  })
+  act(() => {
+    fireEvent.click(screen.getByRole('button', { name: '执行拿取' }))
+  })
+  expect(vi.getTimerCount()).toBe(1)
+
+  act(() => {
+    fireEvent.click(twoX)
+  })
+  expect(oneX).toHaveAttribute('aria-pressed', 'false')
+  expect(twoX).toHaveAttribute('aria-pressed', 'true')
+  expect(vi.getTimerCount()).toBe(1)
+
+  const eventLog = screen.getByRole('region', { name: '对局记录' })
+  const logCount = () => within(eventLog).getAllByRole('paragraph').length
+  expect(logCount()).toBe(1)
+  expect(within(eventLog).getByText(/took one token of each/i)).toBeInTheDocument()
+
+  act(() => {
+    vi.advanceTimersByTime(499)
+  })
+  expect(logCount()).toBe(1)
+
+  act(() => {
+    vi.advanceTimersByTime(1)
+  })
+  expect(logCount()).toBe(2)
+  expect(within(eventLog).getByText(/took one token of each/i)).toBeInTheDocument()
+
+  act(() => {
+    vi.advanceTimersByTime(500)
+  })
+  expect(logCount()).toBe(3)
+})
 
 test('exposes the title and the three named table regions', () => {
   render(<App seed={123} />)

@@ -212,7 +212,7 @@ test('reports an ai action failure without changing state or scheduling another 
   expect(vi.getTimerCount()).toBe(1)
 
   act(() => {
-    vi.advanceTimersByTime(400)
+    vi.advanceTimersByTime(1400)
   })
 
   expect(result.current.lastError?.code).toBe('AI_ACTION_FAILED')
@@ -236,7 +236,7 @@ test('runs one ai action per timer and progresses through the fixed turn order',
   expect(vi.getTimerCount()).toBe(1)
 
   act(() => {
-    vi.advanceTimersByTime(399)
+    vi.advanceTimersByTime(1399)
   })
   expect(chooseSpy).not.toHaveBeenCalled()
   expect(result.current.state.eventLog).toHaveLength(1)
@@ -251,13 +251,13 @@ test('runs one ai action per timer and progresses through the fixed turn order',
   expect(vi.getTimerCount()).toBe(1)
 
   act(() => {
-    vi.advanceTimersByTime(400)
+    vi.advanceTimersByTime(1400)
   })
   expect(chooseSpy).toHaveBeenCalledTimes(2)
   expect(result.current.state.currentPlayerIndex).toBe(3)
 
   act(() => {
-    vi.advanceTimersByTime(400)
+    vi.advanceTimersByTime(1400)
   })
   expect(chooseSpy).toHaveBeenCalledTimes(3)
   expect(result.current.state.currentPlayerIndex).toBe(0)
@@ -267,6 +267,96 @@ test('runs one ai action per timer and progresses through the fixed turn order',
     'ai-2',
     'ai-3',
   ])
+  expect(vi.getTimerCount()).toBe(0)
+
+  unmount()
+})
+
+test('schedules the default 1400ms ai delay at speed 1', () => {
+  const chooseSpy = vi.spyOn(ai, 'chooseAiAction')
+  const { result, unmount } = renderHook(() => useGameSession(123))
+
+  act(() => {
+    result.current.dispatch(humanTokenAction)
+  })
+  expect(vi.getTimerCount()).toBe(1)
+
+  act(() => {
+    vi.advanceTimersByTime(1399)
+  })
+  expect(chooseSpy).not.toHaveBeenCalled()
+
+  act(() => {
+    vi.advanceTimersByTime(1)
+  })
+  expect(chooseSpy).toHaveBeenCalledTimes(1)
+
+  unmount()
+})
+
+test('schedules a 500ms ai delay at speed 2', () => {
+  const chooseSpy = vi.spyOn(ai, 'chooseAiAction')
+  const { result, unmount } = renderHook(() => useGameSession(123, undefined, 2))
+
+  act(() => {
+    result.current.dispatch(humanTokenAction)
+  })
+  expect(vi.getTimerCount()).toBe(1)
+
+  act(() => {
+    vi.advanceTimersByTime(499)
+  })
+  expect(chooseSpy).not.toHaveBeenCalled()
+
+  act(() => {
+    vi.advanceTimersByTime(1)
+  })
+  expect(chooseSpy).toHaveBeenCalledTimes(1)
+
+  unmount()
+})
+
+test('reschedules a pending ai timer when the speed changes without double-firing', () => {
+  const chooseSpy = vi.spyOn(ai, 'chooseAiAction')
+  const { result, rerender, unmount } = renderHook(
+    ({ speed }: { speed: 1 | 2 }) => useGameSession(123, undefined, speed),
+    { initialProps: { speed: 1 as 1 | 2 } },
+  )
+
+  act(() => {
+    result.current.dispatch(humanTokenAction)
+  })
+  expect(vi.getTimerCount()).toBe(1)
+
+  act(() => {
+    vi.advanceTimersByTime(200)
+  })
+  expect(chooseSpy).not.toHaveBeenCalled()
+
+  rerender({ speed: 2 })
+  expect(vi.getTimerCount()).toBe(1)
+
+  act(() => {
+    vi.advanceTimersByTime(499)
+  })
+  expect(chooseSpy).not.toHaveBeenCalled()
+
+  act(() => {
+    vi.advanceTimersByTime(1)
+  })
+  expect(chooseSpy).toHaveBeenCalledTimes(1)
+  expect(vi.getTimerCount()).toBe(1)
+
+  act(() => {
+    vi.advanceTimersByTime(500)
+  })
+  expect(chooseSpy).toHaveBeenCalledTimes(2)
+
+  act(() => {
+    vi.advanceTimersByTime(500)
+  })
+  expect(chooseSpy).toHaveBeenCalledTimes(3)
+  expect(result.current.state.currentPlayerIndex).toBe(0)
   expect(vi.getTimerCount()).toBe(0)
 
   unmount()
