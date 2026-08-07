@@ -596,6 +596,31 @@ test('renders the noble strip above the market region in DOM order', () => {
   expect(headings.indexOf(nobleHeading)).toBeLessThan(headings.indexOf(marketHeading))
 })
 
+test('renders five noble cards in the centered 3+2 strip layout', () => {
+  const { container } = render(<App seed={123} />)
+
+  const panel = screen.getByRole('region', { name: '贵族训练家' })
+  const strip = container.querySelector('.noble-strip')
+  expect(strip).not.toBeNull()
+  expect(strip).toHaveClass('noble-strip--3x2')
+  expect(panel.querySelectorAll('.noble-strip__card')).toHaveLength(5)
+})
+
+test('polishes every noble card with portrait, name, points, and requirement chips', () => {
+  render(<App seed={123} />)
+
+  const panel = screen.getByRole('region', { name: '贵族训练家' })
+  const cards = panel.querySelectorAll('.noble-strip__card')
+  expect(cards).toHaveLength(5)
+
+  for (const card of cards) {
+    expect(card.querySelector('.noble-strip__portrait')).not.toBeNull()
+    expect(card.querySelector('.noble-strip__title h3')?.textContent).not.toBe('')
+    expect(card.querySelector('.noble-strip__title strong')?.textContent).toMatch(/^\+\d+$/)
+    expect(card.querySelectorAll('.requirement-chip[role="img"]').length).toBeGreaterThan(0)
+  }
+})
+
 test('labels noble requirement chips with the color name and value in the accessible name', () => {
   const state = structuredClone(createInitialGame(123))
   const noble = NOBLES.find((candidate) => candidate.id === state.availableNobles[0])

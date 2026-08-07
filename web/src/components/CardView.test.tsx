@@ -34,6 +34,29 @@ test('renders one pokeball icon per point on a five-point card', () => {
   expect(container.querySelectorAll('.card-view__points .pokeball')).toHaveLength(5)
 })
 
+test('artwork fills the lower card face without the old framed art block', () => {
+  const { container } = renderCard('tier-1-002')
+
+  const art = container.querySelector('.card-view__art')
+  expect(art).not.toBeNull()
+  expect(art?.querySelector('img')).not.toBeNull()
+  expect(art?.querySelector('img')).toHaveAttribute('alt', '')
+
+  const footer = container.querySelector('.card-view__footer')
+  expect(footer).not.toBeNull()
+  expect(footer?.querySelector('.card-view__name')).not.toBeNull()
+  expect(footer?.querySelector('.card-view__costs')).not.toBeNull()
+})
+
+test('places name and every cost chip inside the bottom footer scrim', () => {
+  const { container } = renderCard('tier-1-002')
+
+  const footer = container.querySelector('.card-view__footer')
+  expect(footer?.querySelector('.card-view__name')?.textContent).toBe('Charmander')
+  expect(container.querySelectorAll('.card-view__footer .cost-chip')).toHaveLength(2)
+  expect(footer?.querySelector('.cost-chip--fire')).not.toBeNull()
+})
+
 test('renders the tier pokeball variant class and a visible numeric label for tiers 1, 2 and 3', () => {
   const t1 = renderCard('tier-1-002')
   expect(t1.container.querySelector('.pokeball--tier-1')).not.toBeNull()

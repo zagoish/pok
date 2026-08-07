@@ -103,7 +103,7 @@ export default function NoblePanel({ state, claimNoble }: NoblePanelProps) {
         <span className="noble-panel__count">可遇 {nobles.length}</span>
       </div>
 
-      <div className="noble-strip">
+      <div className="noble-strip noble-strip--3x2">
         {nobles.map((noble) => (
           <article className="noble-strip__card" key={noble.id}>
             <div className="noble-strip__portrait">

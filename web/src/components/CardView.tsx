@@ -79,19 +79,21 @@ export default function CardView({ card, selected, selectCard, disabled = false 
         )}
       </span>
 
-      <span className="card-view__name">{card.name}</span>
+      <span className="card-view__footer">
+        <span className="card-view__name">{card.name}</span>
 
-      <span className="card-view__costs" aria-label="非零费用">
-        {costs.length > 0 ? (
-          costs.map((color) => (
-            <span key={color} className={`cost-chip cost-chip--${color}`}>
-              <span className="token-dot" aria-hidden="true" />
-              {card.cost[color]}
-            </span>
-          ))
-        ) : (
-          <span className="cost-chip cost-chip--free">免费</span>
-        )}
+        <span className="card-view__costs" aria-label="非零费用">
+          {costs.length > 0 ? (
+            costs.map((color) => (
+              <span key={color} className={`cost-chip cost-chip--${color}`}>
+                <span className="token-dot" aria-hidden="true" />
+                {card.cost[color]}
+              </span>
+            ))
+          ) : (
+            <span className="cost-chip cost-chip--free">免费</span>
+          )}
+        </span>
       </span>
     </button>
   )

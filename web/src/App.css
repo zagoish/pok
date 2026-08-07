@@ -609,28 +609,15 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  padding: 8px;
   overflow: hidden;
   cursor: pointer;
   color: #251f1a;
   border: 2px solid rgba(69, 56, 40, 0.38);
   border-radius: 10px;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.35), transparent 34%),
-    linear-gradient(160deg, #eee2bf, #cbb88e);
-  box-shadow: var(--shadow-card), inset 0 0 0 1px rgba(255, 255, 255, 0.34);
+  background: linear-gradient(170deg, #1c3a52, #0d2133);
+  box-shadow: var(--shadow-card), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
   text-align: left;
   transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, filter 180ms ease;
-}
-
-.card-view::after {
-  position: absolute;
-  inset: 5px;
-  pointer-events: none;
-  content: "";
-  border: 1px solid rgba(69, 56, 40, 0.2);
-  border-radius: 6px;
 }
 
 .card-view:hover:not(:disabled) {
@@ -651,17 +638,14 @@
   opacity: 0.72;
 }
 
-.card-view__topline,
-.card-view__costs {
-  position: relative;
-  z-index: 1;
-}
-
 .card-view__topline {
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 4px;
+  padding: 8px 8px 0;
 }
 
 .card-view__meta {
@@ -825,29 +809,29 @@
 }
 
 .card-view__art {
-  display: grid;
-  min-height: 65px;
-  margin: 8px 0 7px;
-  place-items: center;
+  position: absolute;
+  top: 34px;
+  right: 0;
+  bottom: 0;
+  left: 0;
   overflow: hidden;
-  border: 1px solid rgba(69, 56, 40, 0.24);
-  border-radius: 6px;
-  background: radial-gradient(circle at 50% 30%, rgba(70, 182, 176, 0.5), rgba(17, 73, 79, 0.45));
 }
 
 .card-view__art img {
   display: block;
   width: 100%;
   height: 100%;
-  min-height: 65px;
-  object-fit: contain;
-  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.4));
+  object-fit: cover;
+  object-position: center 35%;
 }
 
 .card-view__fallback {
-  max-width: 100%;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
   padding: 8px;
-  color: rgba(246, 239, 216, 0.75);
+  color: rgba(246, 239, 216, 0.8);
   font-family: var(--font-mono);
   font-size: 8px;
   letter-spacing: 0.04em;
@@ -855,23 +839,36 @@
   text-align: center;
 }
 
-.card-view__name {
-  position: relative;
+.card-view__footer {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
   z-index: 1;
-  min-height: 29px;
-  color: #231d16;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 24px 8px 7px;
+  background: linear-gradient(180deg, rgba(10, 18, 28, 0) 0%, rgba(10, 18, 28, 0.78) 45%, rgba(10, 18, 28, 0.94) 100%);
+}
+
+.card-view__name {
+  color: var(--ink-0);
   font-family: var(--font-display);
   font-size: clamp(12px, 1.25vw, 16px);
   font-weight: 700;
   line-height: 1.05;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
 }
 
 .card-view__costs {
   display: flex;
   flex-wrap: wrap;
   gap: 3px;
-  margin-top: auto;
-  padding-top: 7px;
+}
+
+.card-view__costs .cost-chip {
+  background: rgba(255, 248, 222, 0.92);
 }
 
 .cost-chip,
@@ -1121,8 +1118,13 @@ button.purchased-card:disabled {
 .noble-strip {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 7px;
   padding: 9px 11px 11px;
+}
+
+.noble-strip--3x2 .noble-strip__card {
+  flex: 0 1 calc((100% - 14px) / 3);
 }
 
 .noble-strip__card {
@@ -1131,9 +1133,10 @@ button.purchased-card:disabled {
   gap: 7px;
   min-width: 0;
   padding: 6px 9px 6px 6px;
-  border: 1px solid rgba(248, 199, 103, 0.19);
+  border: 1px solid rgba(248, 199, 103, 0.22);
   border-radius: var(--radius-md);
-  background: linear-gradient(145deg, rgba(92, 59, 28, 0.26), rgba(20, 38, 53, 0.72));
+  background: linear-gradient(145deg, rgba(92, 59, 28, 0.3), rgba(20, 38, 53, 0.78));
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.22);
 }
 
 .noble-strip__portrait {
@@ -1144,7 +1147,8 @@ button.purchased-card:disabled {
   flex: 0 0 auto;
   place-items: center;
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(248, 199, 103, 0.2), 0 3px 8px rgba(0, 0, 0, 0.35);
   background:
     radial-gradient(circle at 50% 38%, rgba(248, 199, 103, 0.3), rgba(72, 47, 26, 0.22) 62%, rgba(7, 16, 31, 0.55));
 }
@@ -2003,18 +2007,6 @@ button.purchased-card:disabled {
     max-width: 140px;
   }
 
-  .card-view {
-    padding: 6px;
-  }
-
-  .card-view__art {
-    min-height: 53px;
-  }
-
-  .card-view__art img {
-    min-height: 53px;
-  }
-
   .noble-strip {
     gap: 6px;
     padding: 8px 10px 10px;
@@ -2158,14 +2150,6 @@ button.purchased-card:disabled {
 
   .market-grid {
     gap: 6px;
-  }
-
-  .card-view__art {
-    min-height: 66px;
-  }
-
-  .card-view__art img {
-    min-height: 66px;
   }
 
   .winner-banner,
