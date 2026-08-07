@@ -24,6 +24,7 @@ export default function VictoryOverlay({ state, restart }: VictoryOverlayProps) 
       labelledBy="victory-heading"
       className="victory-overlay"
       backdropClassName="victory-backdrop"
+      fallbackSelector="#restart-game-button"
     >
         <span className="section-kicker">LEAGUE CLOSED / FINAL STANDINGS</span>
         <h2 id="victory-heading">联赛结算</h2>

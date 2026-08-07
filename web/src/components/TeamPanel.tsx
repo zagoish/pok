@@ -46,22 +46,31 @@ function TeamCard({ cardId, reserved, selected, selectCard, disabled }: TeamCard
 
   if (!card) return null
 
-  const content = (
+  const cardArt = imageFailed ? (
+    <span>{card.imageKey}</span>
+  ) : (
+    <img
+      src={ASSET_PATHS[card.imageKey] ?? card.imageKey}
+      alt=""
+      onError={() => setImageFailed(true)}
+    />
+  )
+  const reservedContent = (
     <>
-      <div className="purchased-card__art" aria-hidden="true">
-        {imageFailed ? (
-          <span>{card.imageKey}</span>
-        ) : (
-          <img
-            src={ASSET_PATHS[card.imageKey] ?? card.imageKey}
-            alt=""
-            onError={() => setImageFailed(true)}
-          />
-        )}
-      </div>
+      <span className="purchased-card__art" aria-hidden="true">{cardArt}</span>
+      <span className="purchased-card__details">
+        <span className="purchased-card__name">{card.name}</span>
+        <span>{'预留 · '}{COLOR_LABELS[card.bonusType]}</span>
+      </span>
+      <strong>{card.points} 分</strong>
+    </>
+  )
+  const purchasedContent = (
+    <>
+      <div className="purchased-card__art" aria-hidden="true">{cardArt}</div>
       <div className="purchased-card__details">
         <h3>{card.name}</h3>
-        <span>{reserved ? '预留 · ' : '奖励 '}{COLOR_LABELS[card.bonusType]}</span>
+        <span>{'奖励 '}{COLOR_LABELS[card.bonusType]}</span>
       </div>
       <strong>{card.points} 分</strong>
     </>
@@ -77,12 +86,12 @@ function TeamCard({ cardId, reserved, selected, selectCard, disabled }: TeamCard
         disabled={disabled}
         onClick={() => selectCard(card.id)}
       >
-        {content}
+        {reservedContent}
       </button>
     )
   }
 
-  return <article className="purchased-card">{content}</article>
+  return <article className="purchased-card">{purchasedContent}</article>
 }
 
 export default function TeamPanel({ player, selectedCardId, selectCard, disabled = false }: TeamPanelProps) {

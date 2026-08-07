@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react'
+import { useEffect, useRef, type ReactNode, type RefObject } from 'react'
 
 interface ModalShellProps {
   open: boolean
@@ -7,6 +7,8 @@ interface ModalShellProps {
   children: ReactNode
   className: string
   backdropClassName?: string
+  fallbackSelector?: string
+  fallbackRef?: RefObject<HTMLElement | null>
 }
 
 const FOCUSABLE_SELECTOR = [
@@ -24,6 +26,19 @@ function getFocusableElements(dialog: HTMLDivElement) {
   )
 }
 
+function isFocusable(element: HTMLElement | null): element is HTMLElement {
+  if (!element || !element.isConnected || element.hidden || element.getAttribute('aria-hidden') === 'true') {
+    return false
+  }
+
+  if (element.hasAttribute('disabled') || element.getAttribute('aria-disabled') === 'true') return false
+
+  return (
+    element.matches('button, input, select, textarea, summary, a[href]') ||
+    element.hasAttribute('tabindex')
+  )
+}
+
 export default function ModalShell({
   open,
   onClose,
@@ -31,6 +46,8 @@ export default function ModalShell({
   children,
   className,
   backdropClassName = 'modal-backdrop',
+  fallbackSelector,
+  fallbackRef,
 }: ModalShellProps) {
   const dialogRef = useRef<HTMLDivElement>(null)
   const onCloseRef = useRef(onClose)
@@ -78,10 +95,20 @@ export default function ModalShell({
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
-      previousFocusedRef.current?.focus()
+      const previousFocusedElement = previousFocusedRef.current
+      const fallbackElement = fallbackRef?.current ?? (
+        fallbackSelector ? document.querySelector<HTMLElement>(fallbackSelector) : null
+      )
+      const restorationTarget = isFocusable(previousFocusedElement)
+        ? previousFocusedElement
+        : isFocusable(fallbackElement)
+          ? fallbackElement
+          : null
+
+      restorationTarget?.focus()
       previousFocusedRef.current = null
     }
-  }, [open])
+  }, [fallbackRef, fallbackSelector, open])
 
   if (!open) return null
 

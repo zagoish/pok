@@ -67,10 +67,10 @@ export default function GameShell({ seed, initialState }: GameShellProps) {
           </div>
 
           <div className="top-bar__actions">
-            <button type="button" className="top-bar__button" onClick={() => setRulesOpen(true)}>
+            <button id="rules-button" type="button" className="top-bar__button" onClick={() => setRulesOpen(true)}>
               规则
             </button>
-            <button type="button" className="top-bar__button top-bar__button--restart" onClick={restartGame}>
+            <button id="restart-game-button" type="button" className="top-bar__button top-bar__button--restart" onClick={restartGame}>
               重新开始
             </button>
           </div>

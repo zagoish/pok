@@ -89,7 +89,7 @@ export default function ActionPanel({
       <div className="section-heading section-heading--action">
         <div>
           <span className="section-kicker">YOUR TURN / 03</span>
-          <h2 id="action-heading">你的行动</h2>
+          <h2 id="action-heading" tabIndex={-1}>你的行动</h2>
         </div>
         <span className={`action-panel__status${isHumanTurn ? ' is-ready' : ' is-waiting'}`} role="status">
           {isHumanTurn ? '可行动' : '等待电脑'}

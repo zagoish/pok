@@ -238,6 +238,7 @@ test('selects and purchases a reserved card through the real session', async () 
   const team = screen.getByRole('region', { name: '你的队伍' })
   const reservedButton = within(team).getByRole('button', { name: new RegExp(`${card.name}.*预留`) })
   expect(reservedButton).toHaveAttribute('aria-pressed', 'false')
+  expect(reservedButton.querySelector('div, h1, h2, h3, h4, h5, h6')).toBeNull()
   expect(reservedButton).toHaveAccessibleName(/奖励 超能/)
   expect(reservedButton).toHaveAccessibleName(/火 1/)
   expect(reservedButton).toHaveAccessibleName(/电 2/)
@@ -375,6 +376,7 @@ test('renders pending noble choices and claims the selected noble', async () => 
 
   const eventLog = screen.getByRole('region', { name: '对局记录' })
   expect(within(eventLog).getByText(new RegExp(`玩家 claimed ${firstNoble.name}`, 'i'))).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: '你的行动' })).toHaveFocus()
 })
 
 test('keeps the pending noble choice centered in a fixed viewport backdrop and traps focus', async () => {
@@ -417,6 +419,7 @@ test('renders the finished victory overlay and restarts the session', async () =
   await user.click(within(overlay).getByRole('button', { name: '再开一局' }))
 
   expect(screen.queryByRole('dialog', { name: '联赛结算' })).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: '重新开始' })).toHaveFocus()
 })
 
 test('focuses the victory action and closes it with Escape by restarting', async () => {

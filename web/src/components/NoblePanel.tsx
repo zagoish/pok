@@ -143,6 +143,7 @@ export default function NoblePanel({ state, claimNoble }: NoblePanelProps) {
             labelledBy="noble-choice-heading"
             className="noble-choice"
             backdropClassName="choice-backdrop"
+            fallbackSelector="#action-heading"
           >
             {choiceContent}
           </ModalShell>

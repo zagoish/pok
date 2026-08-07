@@ -12,6 +12,7 @@ export default function RulesModal({ open, onClose }: RulesModalProps) {
       onClose={onClose}
       labelledBy="rules-heading"
       className="rules-modal"
+      fallbackSelector="#rules-button"
     >
         <div className="rules-modal__header">
           <div>

@@ -857,14 +857,20 @@ button.purchased-card:disabled {
   min-width: 0;
 }
 
-.purchased-card h3 {
+.purchased-card h3,
+.purchased-card__name {
   margin: 0;
   overflow: hidden;
   color: var(--ink-0);
   font-family: var(--font-display);
   font-size: 12px;
+  line-height: 1.1;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.purchased-card__name {
+  display: block;
 }
 
 .purchased-card__details span {
