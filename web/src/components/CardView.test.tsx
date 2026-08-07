@@ -69,18 +69,21 @@ test('renders the tier pokeball variant class and no visible tier digits for tie
   expect(t1.container.querySelector('.card-view__tier-label')).toBeNull()
   expect(t1.container.querySelector('.card-view__tier')?.textContent).toBe('')
   expect(t1.container.querySelector('button')).toHaveAttribute('data-tier', '1')
+  expect(t1.container.querySelector('button')?.className).toContain('card-view')
 
   const t2 = renderCard('tier-2-002')
   expect(t2.container.querySelector('.pokeball--tier-2')).not.toBeNull()
   expect(t2.container.querySelector('.card-view__tier-label')).toBeNull()
   expect(t2.container.querySelector('.card-view__tier')?.textContent).toBe('')
   expect(t2.container.querySelector('button')).toHaveAttribute('data-tier', '2')
+  expect(t2.container.querySelector('button')?.className).toContain('card-view')
 
   const t3 = renderCard('tier-3-001')
   expect(t3.container.querySelector('.pokeball--tier-3')).not.toBeNull()
   expect(t3.container.querySelector('.card-view__tier-label')).toBeNull()
   expect(t3.container.querySelector('.card-view__tier')?.textContent).toBe('')
   expect(t3.container.querySelector('button')).toHaveAttribute('data-tier', '3')
+  expect(t3.container.querySelector('button')?.className).toContain('card-view')
 })
 
 test('stacks the bonus badge above the tier pokeball in the meta column', () => {
