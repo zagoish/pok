@@ -1388,6 +1388,12 @@ button.purchased-card:disabled {
   padding: 22px;
 }
 
+.noble-choice--inline {
+  width: auto;
+  margin: 12px;
+  box-shadow: none;
+}
+
 .noble-choice h2,
 .rules-modal h2,
 .victory-overlay h2 {

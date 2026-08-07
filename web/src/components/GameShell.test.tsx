@@ -373,6 +373,16 @@ test('keeps the pending noble choice centered in a fixed viewport backdrop and t
   expect(options[0]).toHaveFocus()
 })
 
+test('closes the pending noble modal with Escape while keeping the required choice panel available', async () => {
+  const user = userEvent.setup()
+  render(<App initialState={createPendingNobleState()} />)
+
+  await user.keyboard('{Escape}')
+
+  expect(screen.queryByRole('dialog', { name: '选择贵族' })).not.toBeInTheDocument()
+  expect(screen.getAllByRole('button', { name: /选择/ })).toHaveLength(2)
+})
+
 test('renders the finished victory overlay and restarts the session', async () => {
   const user = userEvent.setup()
   render(<App initialState={createFinishedState()} />)
