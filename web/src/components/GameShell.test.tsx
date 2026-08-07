@@ -17,9 +17,9 @@ function cardFor(state: GameState, tier: 1 | 2 | 3) {
 }
 
 async function takeThreeTokens(user: ReturnType<typeof userEvent.setup>) {
-  await user.click(screen.getByRole('button', { name: /火徽章，持有 0，银行 7/ }))
-  await user.click(screen.getByRole('button', { name: /水徽章，持有 0，银行 7/ }))
-  await user.click(screen.getByRole('button', { name: /草徽章，持有 0，银行 7/ }))
+  await user.click(screen.getByRole('button', { name: /火 · 持有 0 · 银行 7/ }))
+  await user.click(screen.getByRole('button', { name: /水 · 持有 0 · 银行 7/ }))
+  await user.click(screen.getByRole('button', { name: /草 · 持有 0 · 银行 7/ }))
   await user.click(screen.getByRole('button', { name: '执行拿取' }))
 }
 
@@ -148,13 +148,13 @@ test('speed control toggles aria-pressed and re-schedules the pending ai timer',
   expect(twoX).toHaveAttribute('aria-pressed', 'false')
 
   act(() => {
-    fireEvent.click(screen.getByRole('button', { name: /火徽章，持有 0，银行 7/ }))
+    fireEvent.click(screen.getByRole('button', { name: /火 · 持有 0 · 银行 7/ }))
   })
   act(() => {
-    fireEvent.click(screen.getByRole('button', { name: /水徽章，持有 0，银行 7/ }))
+    fireEvent.click(screen.getByRole('button', { name: /水 · 持有 0 · 银行 7/ }))
   })
   act(() => {
-    fireEvent.click(screen.getByRole('button', { name: /草徽章，持有 0，银行 7/ }))
+    fireEvent.click(screen.getByRole('button', { name: /草 · 持有 0 · 银行 7/ }))
   })
   act(() => {
     fireEvent.click(screen.getByRole('button', { name: '执行拿取' }))
@@ -248,7 +248,7 @@ test('dispatches a legal three-different-token action through the session', asyn
   const user = userEvent.setup()
   render(<App seed={123} />)
 
-  const fireStack = screen.getByRole('button', { name: /火徽章，持有 0，银行 7/ })
+  const fireStack = screen.getByRole('button', { name: /火 · 持有 0 · 银行 7/ })
   expect(fireStack).toBeEnabled()
 
   await takeThreeTokens(user)
@@ -354,14 +354,14 @@ test('shows the AI-thinking indicator and locks human controls during an AI turn
   render(<App initialState={createAiTurnState()} />)
 
   expect(within(screen.getByRole('region', { name: '你的行动' })).getByText(/电脑行动中 · 小智/)).toBeInTheDocument()
-  expect(screen.getByRole('button', { name: /火徽章，持有 0，银行 7/ })).toBeDisabled()
+  expect(screen.getByRole('button', { name: /火 · 持有 0 · 银行 7/ })).toBeDisabled()
 })
 
 test('does not dispatch an illegal token action when the bank lacks one requested color', async () => {
   const user = userEvent.setup()
   render(<App initialState={createIllegalTokenState()} />)
 
-  const fireStack = screen.getByRole('button', { name: /火徽章，持有 0，银行 0/ })
+  const fireStack = screen.getByRole('button', { name: /火 · 持有 0 · 银行 0/ })
   expect(fireStack).toBeDisabled()
   await user.click(fireStack)
 
@@ -438,7 +438,7 @@ test('renders pending noble choices and claims the selected noble', async () => 
   const dialog = screen.getByRole('dialog', { name: '选择贵族' })
   const choices = within(dialog).getAllByRole('button', { name: /选择/ })
   expect(choices).toHaveLength(2)
-  expect(screen.getByRole('button', { name: /火徽章，持有 0，银行 7/ })).toBeDisabled()
+  expect(screen.getByRole('button', { name: /火 · 持有 0 · 银行 7/ })).toBeDisabled()
 
   await user.click(choices[0])
 

@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties } from 'react'
+import { useEffect, useState } from 'react'
 import { CARDS } from '../data/cards'
 import { getLegalActions } from '../domain/action-legality'
 import { totalTokens } from '../domain/inventory'
@@ -10,13 +10,7 @@ import {
   type GameState,
   type StandardTokenColor,
 } from '../domain/model'
-import TokenStack, {
-  COLOR_LABELS,
-  RAINBOW_LABEL,
-  chipPosition,
-  clampChipCount,
-  tokenStackHeight,
-} from './TokenStack'
+import { BankTokenStack, COLOR_LABELS, HeldTokenStack, RAINBOW_LABEL } from './TokenStack'
 
 interface ActionPanelProps {
   state: GameState
@@ -46,39 +40,6 @@ function TokenPill({ color, count }: { color: StandardTokenColor | 'rainbow'; co
       <span>{label}</span>
       <strong>{count}</strong>
     </span>
-  )
-}
-
-function BankStack({
-  color,
-  held,
-  bank,
-}: {
-  color: StandardTokenColor | 'rainbow'
-  held: number
-  bank: number
-}) {
-  const label = color === 'rainbow' ? RAINBOW_LABEL : COLOR_LABELS[color]
-  const height = tokenStackHeight(bank)
-  const chipCount = clampChipCount(bank)
-  const style = { '--stack-height': `${height}px` } as CSSProperties
-
-  return (
-    <div
-      className={`token-stack token-stack--bank token-stack--${color}`}
-      style={style}
-      role="img"
-      aria-label={`${label} · 持有 ${held} · 银行 ${bank}`}
-    >
-      <span className="token-stack__chips" aria-hidden="true">
-        {Array.from({ length: chipCount }, (_, index) => (
-          <span key={index} className="token-stack__chip" style={chipPosition(index)} />
-        ))}
-      </span>
-      <span className="token-stack__label">{label}</span>
-      <strong className="token-stack__held">{bank}</strong>
-      <span className="token-stack__bank">银行 {bank}</span>
-    </div>
   )
 }
 
@@ -116,6 +77,7 @@ export default function ActionPanel({
   const [selection, setSelection] = useState<StandardTokenColor[]>([])
   const [hint, setHint] = useState<Hint | null>(null)
   const formed = formedAction(selection)
+  const resultingHeld = formed && human ? totalTokens(human.tokens) + selection.length : 0
 
   useEffect(() => {
     if (locked) {
@@ -138,7 +100,7 @@ export default function ActionPanel({
         return
       }
       setSelection([color, color])
-      setHint({ kind: 'success', text: `已选择：拿取两枚${COLOR_LABELS[color]}徽章` })
+      setHint({ kind: 'success', text: `从银行拿取：${COLOR_LABELS[color]}、${COLOR_LABELS[color]}` })
       return
     }
 
@@ -149,7 +111,7 @@ export default function ActionPanel({
     if (next.length === 3) {
       setHint({
         kind: 'success',
-        text: `已选择：拿取三枚不同徽章（${next.map((candidate) => COLOR_LABELS[candidate]).join('、')}）`,
+        text: `从银行拿取：${next.map((candidate) => COLOR_LABELS[candidate]).join('、')}`,
       })
     } else {
       setHint(null)
@@ -285,47 +247,47 @@ export default function ActionPanel({
       <div className="token-actions">
         <div className="subsection-heading">
           <h3>拿取徽章</h3>
-          <span>点击堆叠选择</span>
+          <span>点击下方银行堆叠</span>
         </div>
-        <div className="token-stack-row">
+        <div className="token-stack-row" role="group" aria-label="持有徽章">
           {STANDARD_TOKEN_COLORS.map((color) => (
-            <TokenStack
+            <HeldTokenStack
               key={color}
               color={color}
               held={human.tokens[color]}
               bank={state.tokenBank[color]}
-              selected={selection.includes(color)}
-              disabled={locked || state.tokenBank[color] === 0}
-              onPick={() => handleStackPick(color)}
             />
           ))}
-          <TokenStack
+          <HeldTokenStack
             color="rainbow"
             held={human.tokens.rainbow}
             bank={state.tokenBank.rainbow}
-            selected={false}
-            disabled={locked}
-            onPick={() => setHint({ kind: 'error', text: '彩虹能量只能通过预留或购买获得' })}
           />
         </div>
         <div className="bank-group" role="group" aria-label="银行">
           <div className="subsection-heading">
             <h3>银行</h3>
-            <span>公共储备</span>
+            <span>点击堆叠选择</span>
           </div>
           <div className="token-stack-row">
             {STANDARD_TOKEN_COLORS.map((color) => (
-              <BankStack
+              <BankTokenStack
                 key={color}
                 color={color}
                 held={human.tokens[color]}
                 bank={state.tokenBank[color]}
+                selected={selection.includes(color)}
+                disabled={locked || state.tokenBank[color] === 0}
+                onPick={() => handleStackPick(color)}
               />
             ))}
-            <BankStack
+            <BankTokenStack
               color="rainbow"
               held={human.tokens.rainbow}
               bank={state.tokenBank.rainbow}
+              selected={false}
+              disabled={locked}
+              onPick={() => setHint({ kind: 'error', text: '彩虹能量只能通过预留或购买获得' })}
             />
           </div>
         </div>
@@ -353,13 +315,21 @@ export default function ActionPanel({
               )
             ) : null}
             {formed ? (
-              <button
-                type="button"
-                className="action-button action-button--primary token-confirm"
-                onClick={confirmTake}
-              >
-                执行拿取
-              </button>
+              <>
+                <p className="token-result">
+                  <span>拿取后 {resultingHeld} / 10</span>
+                  {resultingHeld > 10 ? (
+                    <span className="token-result__overflow">超出部分将自动弃回银行</span>
+                  ) : null}
+                </p>
+                <button
+                  type="button"
+                  className="action-button action-button--primary token-confirm"
+                  onClick={confirmTake}
+                >
+                  执行拿取
+                </button>
+              </>
             ) : null}
           </div>
         ) : null}

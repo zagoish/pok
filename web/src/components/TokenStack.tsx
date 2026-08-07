@@ -25,39 +25,85 @@ export function chipPosition(index: number): { bottom: number; left: number } {
   return { bottom: index * 5, left: (index % 2) * 4 }
 }
 
-export interface TokenStackProps {
-  color: StandardTokenColor | 'rainbow'
-  held: number
-  bank: number
-  selected: boolean
-  disabled?: boolean
-  onPick: () => void
+function stackStyle(count: number): CSSProperties {
+  return { '--stack-height': `${tokenStackHeight(count)}px` } as CSSProperties
 }
 
-export default function TokenStack({ color, held, bank, selected, disabled, onPick }: TokenStackProps) {
+interface StackBodyProps {
+  color: StandardTokenColor | 'rainbow'
+  count: number
+  bank: number
+}
+
+function StackBody({ color, count, bank }: StackBodyProps) {
   const label = color === 'rainbow' ? RAINBOW_LABEL : COLOR_LABELS[color]
-  const height = tokenStackHeight(held)
-  const chipCount = clampChipCount(held)
-  const style = { '--stack-height': `${height}px` } as CSSProperties
+  const chipCount = clampChipCount(count)
 
   return (
-    <button
-      type="button"
-      className={`token-stack token-stack--${color}${selected ? ' is-selected' : ''}`}
-      style={style}
-      aria-pressed={selected}
-      aria-label={`${label}徽章，持有 ${held}，银行 ${bank}`}
-      disabled={disabled}
-      onClick={onPick}
-    >
+    <>
       <span className="token-stack__chips" aria-hidden="true">
         {Array.from({ length: chipCount }, (_, index) => (
           <span key={index} className="token-stack__chip" style={chipPosition(index)} />
         ))}
       </span>
       <span className="token-stack__label">{label}</span>
-      <strong className="token-stack__held">{held}</strong>
+      <strong className="token-stack__held">{count}</strong>
       <span className="token-stack__bank">银行 {bank}</span>
+    </>
+  )
+}
+
+export interface HeldTokenStackProps {
+  color: StandardTokenColor | 'rainbow'
+  held: number
+  bank: number
+}
+
+export function HeldTokenStack({ color, held, bank }: HeldTokenStackProps) {
+  const label = color === 'rainbow' ? RAINBOW_LABEL : COLOR_LABELS[color]
+
+  return (
+    <div
+      className={`token-stack token-stack--held token-stack--${color}`}
+      style={stackStyle(held)}
+      role="img"
+      aria-label={`${label}徽章，持有 ${held}，银行 ${bank}`}
+    >
+      <StackBody color={color} count={held} bank={bank} />
+    </div>
+  )
+}
+
+export interface BankTokenStackProps {
+  color: StandardTokenColor | 'rainbow'
+  held: number
+  bank: number
+  selected: boolean
+  disabled: boolean
+  onPick: () => void
+}
+
+export function BankTokenStack({
+  color,
+  held,
+  bank,
+  selected,
+  disabled,
+  onPick,
+}: BankTokenStackProps) {
+  const label = color === 'rainbow' ? RAINBOW_LABEL : COLOR_LABELS[color]
+
+  return (
+    <button
+      type="button"
+      className={`token-stack token-stack--bank token-stack--${color}${selected ? ' is-selected' : ''}`}
+      style={stackStyle(bank)}
+      aria-pressed={selected}
+      aria-label={`${label} · 持有 ${held} · 银行 ${bank}`}
+      disabled={disabled}
+      onClick={onPick}
+    >
+      <StackBody color={color} count={bank} bank={bank} />
     </button>
   )
 }

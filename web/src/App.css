@@ -49,21 +49,21 @@
 
 .brand-lockup__mark {
   display: grid;
-  width: 40px;
-  height: 40px;
+  width: 46px;
+  height: 46px;
   place-items: center;
   color: var(--amber-0);
   border: 1px solid var(--amber-1);
   border-radius: 50%;
   box-shadow: 0 0 0 6px rgba(203, 141, 43, 0.08), inset 0 0 14px rgba(248, 199, 103, 0.16);
-  font-size: 19px;
+  font-size: 22px;
 }
 
 .section-kicker {
   display: block;
   color: var(--teal-0);
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.16em;
   line-height: 1.3;
@@ -74,7 +74,7 @@
   margin: 4px 0 0;
   color: var(--ink-0);
   font-family: var(--font-display);
-  font-size: clamp(25px, 2.4vw, 35px);
+  font-size: clamp(28px, 2.6vw, 38px);
   font-weight: 600;
   letter-spacing: -0.035em;
   line-height: 1;
@@ -96,7 +96,7 @@
 
 .top-bar__stat span {
   color: var(--ink-3);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
@@ -104,7 +104,7 @@
 .top-bar__stat strong {
   color: var(--ink-0);
   font-family: var(--font-mono);
-  font-size: 16px;
+  font-size: 18px;
 }
 
 .top-bar__stat--turn {
@@ -127,7 +127,7 @@
   border-radius: 999px;
   background: rgba(27, 143, 141, 0.14);
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.08em;
 }
 
@@ -146,7 +146,7 @@
 .turn-indicator {
   gap: 7px;
   color: var(--amber-0);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -187,7 +187,7 @@
 
 .top-bar__button {
   padding: 10px 14px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -219,7 +219,7 @@
 
 .speed-control__label {
   color: var(--ink-3);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
@@ -242,7 +242,7 @@
   border-radius: calc(var(--radius-sm) - 2px);
   background: transparent;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   transition: color 160ms ease, background 160ms ease;
 }
@@ -299,7 +299,7 @@
   margin: 5px 0 0;
   color: var(--ink-0);
   font-family: var(--font-display);
-  font-size: 22px;
+  font-size: 25px;
   font-weight: 600;
   letter-spacing: -0.025em;
   line-height: 1;
@@ -319,7 +319,7 @@
 }
 
 .section-heading--compact h2 {
-  font-size: 18px;
+  font-size: 20px;
 }
 
 .section-note,
@@ -328,7 +328,7 @@
 .player-rail__round {
   color: var(--ink-3);
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -385,20 +385,20 @@
 .tier-index {
   color: var(--teal-0);
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
 }
 
 .player-card__avatar {
   display: grid;
-  width: 21px;
-  height: 21px;
+  width: 24px;
+  height: 24px;
   flex: 0 0 auto;
   place-items: center;
   color: var(--navy-0);
   border-radius: 50%;
   background: var(--teal-0);
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .player-card h3,
@@ -413,7 +413,7 @@
 
 .player-card h3 {
   overflow: hidden;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   line-height: 1.2;
   text-overflow: ellipsis;
@@ -426,7 +426,7 @@
   color: var(--navy-0);
   border-radius: 4px;
   background: var(--amber-0);
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 800;
 }
 
@@ -440,20 +440,20 @@
 .player-card__scoreline strong {
   color: var(--amber-0);
   font-family: var(--font-display);
-  font-size: 26px;
+  font-size: 29px;
   line-height: 0.9;
 }
 
 .player-card__scoreline span {
   color: var(--ink-3);
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .player-card__progress {
   margin: -3px 0 8px;
   color: var(--ink-3);
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.04em;
 }
 
@@ -471,13 +471,13 @@
   gap: 3px;
   min-width: 0;
   color: var(--ink-2);
-  font-size: 8px;
+  font-size: 10px;
 }
 
 .token-count strong {
   color: var(--ink-0);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .token-count__label {
@@ -488,8 +488,8 @@
 
 .token-dot {
   display: inline-block;
-  width: 9px;
-  height: 9px;
+  width: 10px;
+  height: 10px;
   border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 50%;
   background: #677584;
@@ -581,20 +581,20 @@
 
 .market-layer h3 {
   font-family: var(--font-display);
-  font-size: 17px;
+  font-size: 19px;
   font-weight: 600;
 }
 
 .market-layer__deck-count {
   color: var(--ink-3);
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .market-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 7px;
+  gap: 0;
   justify-items: center;
 }
 
@@ -602,7 +602,7 @@
 .card-slot {
   width: 100%;
   min-width: 0;
-  max-width: 205px;
+  max-width: 260px;
   aspect-ratio: 0.7;
 }
 
@@ -614,7 +614,7 @@
   cursor: pointer;
   color: #251f1a;
   border: 2px solid rgba(69, 56, 40, 0.38);
-  border-radius: 10px;
+  border-radius: 13px;
   background: linear-gradient(170deg, #1c3a52, #0d2133);
   box-shadow: var(--shadow-card), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
   text-align: left;
@@ -623,13 +623,15 @@
 
 .card-view:hover:not(:disabled) {
   transform: translateY(-4px) rotate(-0.5deg);
-  border-color: var(--amber-1);
-  box-shadow: 0 21px 30px rgba(0, 0, 0, 0.36), 0 0 0 3px rgba(248, 199, 103, 0.08);
+  border-color: rgba(248, 199, 103, 0.55);
+  box-shadow: 0 21px 30px rgba(0, 0, 0, 0.36), 0 0 0 3px rgba(248, 199, 103, 0.12),
+    inset 0 0 0 1px rgba(248, 199, 103, 0.2);
 }
 
 .card-view.is-selected {
   border-color: var(--amber-0);
-  box-shadow: 0 18px 32px rgba(0, 0, 0, 0.35), 0 0 0 3px rgba(248, 199, 103, 0.24), 0 0 22px rgba(248, 199, 103, 0.25);
+  box-shadow: 0 18px 32px rgba(0, 0, 0, 0.35), 0 0 0 3px rgba(248, 199, 103, 0.28),
+    0 0 22px rgba(248, 199, 103, 0.28), inset 0 0 0 1px rgba(255, 240, 200, 0.28);
   transform: translateY(-3px);
 }
 
@@ -661,8 +663,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 19px;
-  height: 19px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   background: rgba(255, 248, 222, 0.55);
   box-shadow: 0 0 0 2px rgba(69, 56, 40, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -674,7 +676,7 @@
   display: grid;
   place-items: center;
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 800;
   line-height: 1;
   color: #221b10;
@@ -682,8 +684,8 @@
 }
 
 .card-view__bonus .token-dot {
-  width: 12px;
-  height: 12px;
+  width: 15px;
+  height: 15px;
   border: none;
   box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.45), inset 0 -1px 2px rgba(0, 0, 0, 0.28);
 }
@@ -698,12 +700,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 26px;
-  min-height: 24px;
+  min-width: 30px;
+  min-height: 28px;
   margin: 1px 1px 0 0;
-  padding: 2px 7px 3px;
+  padding: 3px 8px 4px;
   border: 1px solid rgba(248, 199, 103, 0.4);
-  border-radius: 6px;
+  border-radius: 7px;
   background: linear-gradient(160deg, rgba(10, 18, 28, 0.86), rgba(13, 33, 51, 0.88));
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
 }
@@ -711,7 +713,7 @@
 .card-view__points-value {
   color: var(--amber-0);
   font-family: var(--font-display);
-  font-size: 20px;
+  font-size: 23px;
   font-weight: 700;
   line-height: 1;
   letter-spacing: 0.07em;
@@ -722,13 +724,13 @@
   --pb-top: #e3350d;
   --pb-bottom: #f6f7f2;
   --pb-band: #26262a;
-  --pb-band-height: 2px;
+  --pb-band-height: 3px;
   --pb-dot: #ffffff;
   position: relative;
   display: inline-block;
   flex: none;
-  width: 14px;
-  height: 14px;
+  width: 17px;
+  height: 17px;
   overflow: hidden;
   border: 1px solid rgba(0, 0, 0, 0.4);
   border-radius: 50%;
@@ -757,8 +759,8 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   border: 1px solid rgba(0, 0, 0, 0.55);
   border-radius: 50%;
   background: var(--pb-dot);
@@ -768,7 +770,7 @@
 }
 
 .pokeball--tier-2 {
-  --pb-band-height: 4px;
+  --pb-band-height: 5px;
 }
 
 .pokeball--tier-2::before {
@@ -798,7 +800,7 @@
 
 .card-view__art {
   position: absolute;
-  top: 34px;
+  top: 38px;
   right: 0;
   bottom: 0;
   left: 0;
@@ -821,7 +823,7 @@
   padding: 8px;
   color: rgba(246, 239, 216, 0.8);
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 10px;
   letter-spacing: 0.04em;
   overflow-wrap: anywhere;
   text-align: center;
@@ -843,7 +845,7 @@
 .card-view__name {
   color: var(--ink-0);
   font-family: var(--font-display);
-  font-size: clamp(12px, 1.25vw, 16px);
+  font-size: clamp(14px, 1.4vw, 18px);
   font-weight: 700;
   line-height: 1.05;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
@@ -864,20 +866,20 @@
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  padding: 2px 4px;
+  padding: 3px 5px;
   color: #382b1d;
   border: 1px solid rgba(69, 56, 40, 0.18);
-  border-radius: 4px;
+  border-radius: 5px;
   background: rgba(255, 248, 222, 0.42);
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 800;
 }
 
 .cost-chip .token-dot,
 .requirement-chip .token-dot {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
 }
 
 .cost-chip--free {
@@ -891,9 +893,9 @@
   place-items: center;
   color: var(--ink-2);
   border: 1px dashed rgba(148, 164, 179, 0.2);
-  border-radius: 10px;
+  border-radius: 13px;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .noble-panel {
@@ -913,7 +915,7 @@
 .team-panel__count {
   color: var(--teal-0);
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -972,8 +974,8 @@ button.purchased-card:disabled {
 
 .purchased-card__art {
   display: grid;
-  width: 38px;
-  height: 38px;
+  width: 42px;
+  height: 42px;
   place-items: center;
   overflow: hidden;
   border: 1px solid rgba(81, 208, 192, 0.25);
@@ -992,7 +994,7 @@ button.purchased-card:disabled {
   padding: 3px;
   color: var(--teal-0);
   font-family: var(--font-mono);
-  font-size: 7px;
+  font-size: 9px;
   overflow-wrap: anywhere;
   text-align: center;
 }
@@ -1007,7 +1009,7 @@ button.purchased-card:disabled {
   overflow: hidden;
   color: var(--ink-0);
   font-family: var(--font-display);
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.1;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1021,20 +1023,20 @@ button.purchased-card:disabled {
   display: block;
   margin-top: 4px;
   color: var(--ink-3);
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .purchased-card > strong {
   color: var(--amber-0);
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   white-space: nowrap;
 }
 
 .team-panel__empty {
   margin: 0;
   color: var(--ink-3);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.5;
 }
 
@@ -1055,7 +1057,7 @@ button.purchased-card:disabled {
 
 .bonus-track__heading > span:last-child {
   color: var(--ink-3);
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .bonus-track__grid {
@@ -1069,12 +1071,12 @@ button.purchased-card:disabled {
   align-items: center;
   gap: 7px;
   color: var(--ink-1);
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .bonus-count .token-dot {
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
 }
 
 .bonus-count--fire .token-dot {
@@ -1100,7 +1102,7 @@ button.purchased-card:disabled {
 .bonus-count span:last-child {
   color: var(--ink-0);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .noble-strip {
@@ -1130,8 +1132,8 @@ button.purchased-card:disabled {
 .noble-strip__portrait {
   position: relative;
   display: grid;
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   flex: 0 0 auto;
   place-items: center;
   overflow: hidden;
@@ -1153,7 +1155,7 @@ button.purchased-card:disabled {
   position: absolute;
   color: rgba(246, 239, 216, 0.76);
   font-family: var(--font-display);
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
 }
@@ -1174,7 +1176,7 @@ button.purchased-card:disabled {
 
 .noble-strip__title h3 {
   overflow: hidden;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.1;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1183,7 +1185,7 @@ button.purchased-card:disabled {
 .noble-strip__title strong {
   color: var(--amber-0);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   white-space: nowrap;
 }
 
@@ -1203,7 +1205,7 @@ button.purchased-card:disabled {
   color: var(--ink-1);
   border-color: rgba(248, 199, 103, 0.17);
   background: rgba(7, 16, 31, 0.42);
-  font-size: 7px;
+  font-size: 9px;
 }
 
 .event-log {
@@ -1223,7 +1225,7 @@ button.purchased-card:disabled {
   gap: 8px;
   margin: 0;
   color: var(--ink-1);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.45;
 }
 
@@ -1250,7 +1252,7 @@ button.purchased-card:disabled {
   border-radius: 999px;
   background: rgba(92, 59, 28, 0.26);
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 10px;
 }
 
 .action-panel__status.is-waiting {
@@ -1284,12 +1286,12 @@ button.purchased-card:disabled {
 
 .current-player-banner strong {
   color: var(--ink-0);
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .current-player-banner span:not(.current-player-banner__pulse) {
   color: var(--ink-2);
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .resource-block,
@@ -1306,7 +1308,7 @@ button.purchased-card:disabled {
 
 .subsection-heading h3 {
   font-family: var(--font-display);
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 600;
 }
 
@@ -1314,7 +1316,7 @@ button.purchased-card:disabled {
 .subsection-heading > span {
   color: var(--amber-0);
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .subsection-heading > span {
@@ -1337,7 +1339,7 @@ button.purchased-card:disabled {
   border: 1px solid rgba(148, 164, 179, 0.13);
   border-radius: 6px;
   background: rgba(22, 45, 69, 0.42);
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .action-token-pill strong {
@@ -1357,7 +1359,7 @@ button.purchased-card:disabled {
 .selected-card-name {
   margin: 0;
   color: var(--ink-1);
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .selected-card-name::first-letter {
@@ -1368,7 +1370,7 @@ button.purchased-card:disabled {
   margin: 8px 0 5px;
   color: var(--ink-3);
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 10px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -1384,7 +1386,7 @@ button.purchased-card:disabled {
   gap: 5px;
   color: var(--ink-2);
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .payment-row > span:first-child {
@@ -1401,7 +1403,7 @@ button.purchased-card:disabled {
 .selected-card-empty {
   margin: 0;
   color: var(--ink-3);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.5;
 }
 
@@ -1419,7 +1421,7 @@ button.purchased-card:disabled {
   border: 1px solid var(--line);
   border-radius: 7px;
   background: rgba(22, 45, 69, 0.72);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   line-height: 1.2;
   transition: border-color 150ms ease, background 150ms ease, color 150ms ease, transform 150ms ease;
@@ -1476,11 +1478,11 @@ button.purchased-card:disabled {
   align-items: center;
   justify-content: flex-end;
   gap: 2px;
-  min-height: 96px;
+  min-height: 104px;
   padding: 6px 4px 8px;
   color: var(--ink-1);
   border: 1px solid rgba(148, 164, 179, 0.16);
-  border-radius: 9px;
+  border-radius: 11px;
   background: linear-gradient(180deg, rgba(22, 45, 69, 0.5), rgba(13, 26, 42, 0.62));
   cursor: pointer;
   transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
@@ -1505,7 +1507,7 @@ button.purchased-card:disabled {
 
 .token-stack__chips {
   position: relative;
-  width: 30px;
+  width: 34px;
   height: var(--stack-height);
   min-height: 10px;
   transition: height 200ms ease;
@@ -1513,8 +1515,8 @@ button.purchased-card:disabled {
 
 .token-stack__chip {
   position: absolute;
-  width: 26px;
-  height: 8px;
+  width: 29px;
+  height: 9px;
   border: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: 6px 6px 3px 3px;
   box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), 0 1px 2px rgba(0, 0, 0, 0.35);
@@ -1546,20 +1548,20 @@ button.purchased-card:disabled {
 
 .token-stack__label {
   color: var(--ink-2);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
 }
 
 .token-stack__held {
   color: var(--ink-0);
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .token-stack__bank {
   color: var(--ink-3);
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 10px;
   letter-spacing: 0.04em;
 }
 
@@ -1575,14 +1577,38 @@ button.purchased-card:disabled {
   margin-top: 8px;
 }
 
-.token-stack--bank {
+.token-stack--held {
   cursor: default;
-  pointer-events: none;
+}
+
+.token-stack--bank {
+  cursor: pointer;
   border-style: dashed;
-  border-color: rgba(148, 164, 179, 0.3);
+  border-color: rgba(148, 164, 179, 0.32);
   background: rgba(13, 26, 42, 0.4);
-  opacity: 0.75;
+  opacity: 0.78;
   filter: saturate(0.65);
+}
+
+.token-stack--bank:hover:not(:disabled) {
+  border-color: rgba(81, 208, 192, 0.62);
+  background: rgba(27, 143, 141, 0.22);
+  opacity: 0.95;
+  filter: saturate(0.9);
+  transform: translateY(-2px);
+}
+
+.token-stack--bank:active:not(:disabled) {
+  transform: translateY(0) scale(0.97);
+}
+
+.token-stack--bank.is-selected {
+  border-style: solid;
+  border-color: var(--amber-0);
+  background: rgba(92, 59, 28, 0.32);
+  opacity: 1;
+  filter: saturate(1);
+  box-shadow: 0 0 0 1px rgba(248, 199, 103, 0.4), 0 4px 14px rgba(0, 0, 0, 0.3);
 }
 
 .token-selection {
@@ -1608,7 +1634,7 @@ button.purchased-card:disabled {
   border: 1px solid rgba(248, 199, 103, 0.4);
   border-radius: 999px;
   background: rgba(92, 59, 28, 0.35);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   cursor: pointer;
   transition: border-color 150ms ease, background 150ms ease;
@@ -1621,7 +1647,7 @@ button.purchased-card:disabled {
 
 .token-hint {
   margin: 8px 0 0;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.45;
 }
 
@@ -1631,6 +1657,23 @@ button.purchased-card:disabled {
 
 .token-hint--error {
   color: var(--red-0);
+}
+
+.token-result {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 8px;
+  margin: 9px 0 0;
+  color: var(--ink-2);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.token-result__overflow {
+  color: var(--teal-0);
+  font-weight: 700;
 }
 
 .token-confirm {
@@ -1649,14 +1692,14 @@ button.purchased-card:disabled {
 
 .rule-error__code {
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 10px;
   letter-spacing: 0.08em;
 }
 
 .rule-error p {
   margin: 5px 0 0;
   color: var(--ink-1);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.4;
 }
 
@@ -1710,7 +1753,7 @@ button.purchased-card:disabled {
 .victory-overlay h2 {
   margin-top: 6px;
   font-family: var(--font-display);
-  font-size: 28px;
+  font-size: 31px;
   font-weight: 600;
 }
 
@@ -1718,7 +1761,7 @@ button.purchased-card:disabled {
 .victory-overlay__lead {
   margin: 9px 0 0;
   color: var(--ink-2);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.6;
 }
 
@@ -1739,7 +1782,7 @@ button.purchased-card:disabled {
   border: 1px solid rgba(81, 208, 192, 0.34);
   border-radius: 8px;
   background: rgba(16, 63, 80, 0.48);
-  font-size: 11px;
+  font-size: 13px;
   text-align: left;
   transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
 }
@@ -1753,13 +1796,13 @@ button.purchased-card:disabled {
 .noble-choice__options strong {
   color: var(--amber-0);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .noble-choice__options button span:last-child {
   color: var(--teal-0);
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .rules-modal {
@@ -1773,11 +1816,11 @@ button.purchased-card:disabled {
 
 .icon-button {
   display: grid;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   place-items: center;
   color: var(--ink-1);
-  font-size: 21px;
+  font-size: 24px;
   line-height: 1;
 }
 
@@ -1797,7 +1840,7 @@ button.purchased-card:disabled {
   gap: 3px;
   padding-left: 4px;
   color: var(--ink-1);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.5;
 }
 
@@ -1829,7 +1872,7 @@ button.purchased-card:disabled {
   color: var(--ink-2);
   border-left: 2px solid var(--teal-1);
   background: rgba(16, 63, 80, 0.24);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.5;
 }
 
@@ -1855,7 +1898,7 @@ button.purchased-card:disabled {
 .victory-overlay__lead {
   color: var(--amber-0);
   font-family: var(--font-display);
-  font-size: 17px;
+  font-size: 19px;
 }
 
 .winner-banner {
@@ -1873,14 +1916,14 @@ button.purchased-card:disabled {
 .winner-banner span {
   color: var(--amber-0);
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.12em;
 }
 
 .winner-banner strong {
   color: var(--ink-0);
   font-family: var(--font-display);
-  font-size: 21px;
+  font-size: 24px;
 }
 
 .standings-table {
@@ -1898,7 +1941,7 @@ button.purchased-card:disabled {
   color: var(--ink-1);
   border-radius: 6px;
   background: rgba(22, 45, 69, 0.42);
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .standings-table__row--heading {
@@ -1906,7 +1949,7 @@ button.purchased-card:disabled {
   color: var(--ink-3);
   background: transparent;
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 10px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -1920,14 +1963,14 @@ button.purchased-card:disabled {
   margin-left: 6px;
   color: var(--amber-0);
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 10px;
   font-style: normal;
 }
 
 .tie-break-reason {
   margin: 15px 0 17px;
   color: var(--ink-2);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.5;
 }
 
@@ -1984,18 +2027,18 @@ button.purchased-card:disabled {
   }
 
   .brand-lockup__mark {
-    width: 32px;
-    height: 32px;
-    font-size: 16px;
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
   }
 
   .brand-lockup h1 {
-    font-size: clamp(22px, 2.1vw, 30px);
+    font-size: clamp(24px, 2.2vw, 32px);
   }
 
   .top-bar__button {
     padding: 7px 10px;
-    font-size: 11px;
+    font-size: 13px;
   }
 
   .top-bar__status {
@@ -2035,7 +2078,7 @@ button.purchased-card:disabled {
   }
 
   .section-heading h2 {
-    font-size: 19px;
+    font-size: 22px;
   }
 
   .section-heading--compact {
@@ -2043,12 +2086,12 @@ button.purchased-card:disabled {
   }
 
   .section-heading--compact h2 {
-    font-size: 16px;
+    font-size: 18px;
   }
 
   .card-view,
   .card-slot {
-    max-width: 145px;
+    max-width: 185px;
   }
 
   .market-layers {
@@ -2065,7 +2108,7 @@ button.purchased-card:disabled {
   }
 
   .market-grid {
-    gap: 5px;
+    gap: 0;
   }
 
   .noble-strip {
@@ -2084,12 +2127,12 @@ button.purchased-card:disabled {
   }
 
   .noble-strip__portrait {
-    width: 26px;
-    height: 26px;
+    width: 30px;
+    height: 30px;
   }
 
   .noble-strip__portrait > span {
-    font-size: 13px;
+    font-size: 15px;
   }
 
   .noble-strip__info {
@@ -2097,11 +2140,11 @@ button.purchased-card:disabled {
   }
 
   .noble-strip__title h3 {
-    font-size: 10px;
+    font-size: 12px;
   }
 
   .noble-strip__title strong {
-    font-size: 9px;
+    font-size: 11px;
   }
 
   .event-log__list {
@@ -2152,20 +2195,20 @@ button.purchased-card:disabled {
   .action-button {
     min-height: 32px;
     padding: 7px 9px;
-    font-size: 9px;
+    font-size: 11px;
   }
 
   .token-stack {
-    min-height: 84px;
+    min-height: 92px;
     padding: 5px 3px 7px;
   }
 
   .token-stack__chips {
-    width: 28px;
+    width: 30px;
   }
 
   .token-stack__chip {
-    width: 24px;
+    width: 26px;
   }
 
   .token-actions {
@@ -2231,17 +2274,17 @@ button.purchased-card:disabled {
   }
 
   .brand-lockup__mark {
-    width: 34px;
-    height: 34px;
+    width: 38px;
+    height: 38px;
   }
 
   .brand-lockup h1 {
-    font-size: 24px;
+    font-size: 27px;
   }
 
   .top-bar__button {
     padding: 8px 10px;
-    font-size: 11px;
+    font-size: 13px;
   }
 
   .top-bar__status {
@@ -2280,6 +2323,7 @@ button.purchased-card:disabled {
 
   .market-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
   }
 
   .market-layer__heading {
