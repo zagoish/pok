@@ -68,6 +68,7 @@ function sessionReducer(session: SessionState, action: SessionAction): SessionSt
   return {
     ...session,
     state: result.value,
+    selectedCardId: action.type === 'dispatch' ? null : session.selectedCardId,
     lastError: null,
   }
 }

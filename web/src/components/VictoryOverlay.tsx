@@ -1,5 +1,6 @@
 import { sortPlayersForStandings } from '../domain/endgame'
 import type { GameState } from '../domain/model'
+import ModalShell from './ModalShell'
 
 interface VictoryOverlayProps {
   state: GameState
@@ -17,8 +18,13 @@ export default function VictoryOverlay({ state, restart }: VictoryOverlayProps) 
       : '积分优先；若积分相同，则购买卡数量较少者获胜。'
 
   return (
-    <div className="victory-backdrop">
-      <div className="victory-overlay" role="dialog" aria-modal="true" aria-labelledby="victory-heading">
+    <ModalShell
+      open
+      onClose={restart}
+      labelledBy="victory-heading"
+      className="victory-overlay"
+      backdropClassName="victory-backdrop"
+    >
         <span className="section-kicker">LEAGUE CLOSED / FINAL STANDINGS</span>
         <h2 id="victory-heading">联赛结算</h2>
         <p className="victory-overlay__lead">
@@ -53,7 +59,6 @@ export default function VictoryOverlay({ state, restart }: VictoryOverlayProps) 
         <button type="button" className="action-button action-button--primary" onClick={restart}>
           再开一局
         </button>
-      </div>
-    </div>
+    </ModalShell>
   )
 }

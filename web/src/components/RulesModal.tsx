@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import ModalShell from './ModalShell'
 
 interface RulesModalProps {
   open: boolean
@@ -6,22 +6,13 @@ interface RulesModalProps {
 }
 
 export default function RulesModal({ open, onClose }: RulesModalProps) {
-  useEffect(() => {
-    if (!open) return undefined
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose()
-    }
-
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [onClose, open])
-
-  if (!open) return null
-
   return (
-    <div className="modal-backdrop">
-      <div className="rules-modal" role="dialog" aria-modal="true" aria-labelledby="rules-heading">
+    <ModalShell
+      open={open}
+      onClose={onClose}
+      labelledBy="rules-heading"
+      className="rules-modal"
+    >
         <div className="rules-modal__header">
           <div>
             <span className="section-kicker">FIELD MANUAL / RULES</span>
@@ -62,7 +53,6 @@ export default function RulesModal({ open, onClose }: RulesModalProps) {
         <button type="button" className="action-button action-button--primary rules-modal__close" onClick={onClose}>
           返回牌桌
         </button>
-      </div>
-    </div>
+    </ModalShell>
   )
 }

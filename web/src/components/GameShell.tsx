@@ -78,7 +78,14 @@ export default function GameShell({ seed, initialState }: GameShellProps) {
               disabled={tableLocked}
             />
             <NoblePanel state={state} claimNoble={session.claimNoble} />
-            {humanPlayer ? <TeamPanel player={humanPlayer} /> : null}
+            {humanPlayer ? (
+              <TeamPanel
+                player={humanPlayer}
+                selectedCardId={selectedCardId}
+                selectCard={session.selectCard}
+                disabled={tableLocked}
+              />
+            ) : null}
             <section className="event-log" role="region" aria-labelledby="event-log-heading">
               <div className="section-heading section-heading--compact">
                 <div>
@@ -87,7 +94,7 @@ export default function GameShell({ seed, initialState }: GameShellProps) {
                 </div>
                 <span>{state.eventLog.length} 条记录</span>
               </div>
-              <div className="event-log__list">
+              <div className="event-log__list" aria-live="polite">
                 {state.eventLog.length > 0 ? (
                   [...state.eventLog].reverse().slice(0, 6).map((event, index) => (
                     <p key={`${event.type}-${event.playerId}-${index}`}>

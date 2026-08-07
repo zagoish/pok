@@ -105,6 +105,20 @@ function createReserveLimitState(): GameState {
   return state
 }
 
+function createReservedReadyState() {
+  const state = structuredClone(createInitialGame(123))
+  const card = cardFor(state, 1)
+  const tokens = zeroTokenInventory()
+
+  for (const color of Object.keys(card.cost) as Array<keyof typeof card.cost>) {
+    tokens[color] = card.cost[color]
+  }
+
+  state.market[card.tier] = state.market[card.tier].filter((cardId) => cardId !== card.id)
+  state.players[0] = { ...state.players[0], reservedCards: [card.id], tokens }
+  return { state, card }
+}
+
 test('exposes the title and the three named table regions', () => {
   render(<App seed={123} />)
 
@@ -113,6 +127,10 @@ test('exposes the title and the three named table regions', () => {
   expect(screen.getByRole('region', { name: '训练家进度' })).toBeInTheDocument()
   expect(screen.getByRole('region', { name: '你的行动' })).toBeInTheDocument()
   expect(screen.getByRole('region', { name: '你的队伍' })).toBeInTheDocument()
+  expect(screen.getByRole('region', { name: '对局记录' }).querySelector('.event-log__list')).toHaveAttribute(
+    'aria-live',
+    'polite',
+  )
 })
 
 test('renders market tiers in approved A order from tier 3 down to tier 1', () => {
@@ -138,6 +156,21 @@ test('selecting a market card changes its pressed state and the selected informa
 
   expect(cardButton).toHaveAttribute('aria-pressed', 'true')
   expect(screen.getByText(new RegExp(`已选择.*${card.name}`))).toBeInTheDocument()
+})
+
+test('includes card name, tier, points, bonus, and every non-zero cost in its accessible label', () => {
+  const card = CARDS.find((candidate) => candidate.id === 'tier-1-002')
+  if (!card) throw new Error('Missing card label fixture')
+
+  render(<CardView card={card} selected={false} selectCard={() => undefined} />)
+
+  const cardButton = screen.getByRole('button', { name: /Charmander/ })
+  expect(cardButton).toHaveAccessibleName(/Charmander/)
+  expect(cardButton).toHaveAccessibleName(/等级 1/)
+  expect(cardButton).toHaveAccessibleName(/0 分/)
+  expect(cardButton).toHaveAccessibleName(/奖励 电/)
+  expect(cardButton).toHaveAccessibleName(/火 2/)
+  expect(cardButton).toHaveAccessibleName(/超能 1/)
 })
 
 test('dispatches a legal three-different-token action through the session', async () => {
@@ -169,6 +202,7 @@ test('dispatches a legal reserve action for the selected market card', async () 
   const eventLog = screen.getByRole('region', { name: '对局记录' })
   expect(within(eventLog).getByText(new RegExp(`玩家 reserved ${card.name}`, 'i'))).toBeInTheDocument()
   expect(within(screen.getByRole('region', { name: '训练家进度' })).getByText(/预留卡.*1/)).toBeInTheDocument()
+  expect(screen.getByText(/从野外市场选择一张卡牌/)).toBeInTheDocument()
 })
 
 test('dispatches a legal buy action and updates the purchased-card count', async () => {
@@ -186,6 +220,29 @@ test('dispatches a legal buy action and updates the purchased-card count', async
   const eventLog = screen.getByRole('region', { name: '对局记录' })
   expect(within(eventLog).getByText(new RegExp(`玩家 bought ${card.name}`, 'i'))).toBeInTheDocument()
   expect(within(screen.getByRole('region', { name: '训练家进度' })).getByText(/已购卡.*1/)).toBeInTheDocument()
+  expect(screen.getByText(/从野外市场选择一张卡牌/)).toBeInTheDocument()
+})
+
+test('selects and purchases a reserved card through the real session', async () => {
+  const user = userEvent.setup()
+  const { state, card } = createReservedReadyState()
+
+  render(<App initialState={state} />)
+
+  const team = screen.getByRole('region', { name: '你的队伍' })
+  const reservedButton = within(team).getByRole('button', { name: new RegExp(`${card.name}.*预留`) })
+  expect(reservedButton).toHaveAttribute('aria-pressed', 'false')
+
+  await user.click(reservedButton)
+
+  expect(reservedButton).toHaveAttribute('aria-pressed', 'true')
+  const buyButton = screen.getByRole('button', { name: new RegExp(`购买.*${card.name}`) })
+  expect(buyButton).toBeEnabled()
+  await user.click(buyButton)
+
+  expect(within(screen.getByRole('region', { name: '训练家进度' })).getByText(/已购卡.*1/)).toBeInTheDocument()
+  expect(screen.getByText(/从野外市场选择一张卡牌/)).toBeInTheDocument()
+  expect(within(team).queryByRole('button', { name: new RegExp(`${card.name}.*预留`) })).not.toBeInTheDocument()
 })
 
 test('does not dispatch an illegal buy action and keeps it disabled', async () => {
@@ -261,6 +318,26 @@ test('opens and closes the rules dialog with Escape', async () => {
   expect(screen.queryByRole('dialog', { name: '对局规则' })).not.toBeInTheDocument()
 })
 
+test('moves focus into the rules modal, wraps Tab, and restores the opener on Escape', async () => {
+  const user = userEvent.setup()
+  render(<App seed={123} />)
+
+  const opener = screen.getByRole('button', { name: '规则' })
+  opener.focus()
+  await user.click(opener)
+  const dialog = screen.getByRole('dialog', { name: '对局规则' })
+  const closeButton = within(dialog).getByRole('button', { name: '关闭规则' })
+  const lastButton = within(dialog).getByRole('button', { name: '返回牌桌' })
+
+  expect(closeButton).toHaveFocus()
+  await user.tab({ shift: true })
+  expect(lastButton).toHaveFocus()
+  await user.tab()
+  expect(closeButton).toHaveFocus()
+  await user.keyboard('{Escape}')
+  expect(opener).toHaveFocus()
+})
+
 test('renders pending noble choices and claims the selected noble', async () => {
   const user = userEvent.setup()
   const state = createPendingNobleState()
@@ -280,6 +357,22 @@ test('renders pending noble choices and claims the selected noble', async () => 
   expect(within(eventLog).getByText(new RegExp(`玩家 claimed ${firstNoble.name}`, 'i'))).toBeInTheDocument()
 })
 
+test('keeps the pending noble choice centered in a fixed viewport backdrop and traps focus', async () => {
+  const user = userEvent.setup()
+  render(<App initialState={createPendingNobleState()} />)
+
+  const dialog = screen.getByRole('dialog', { name: '选择贵族' })
+  const options = within(dialog).getAllByRole('button', { name: /选择/ })
+  const backdrop = dialog.parentElement
+
+  expect(backdrop).toHaveClass('choice-backdrop')
+  expect(options[0]).toHaveFocus()
+  await user.tab({ shift: true })
+  expect(options[options.length - 1]).toHaveFocus()
+  await user.tab()
+  expect(options[0]).toHaveFocus()
+})
+
 test('renders the finished victory overlay and restarts the session', async () => {
   const user = userEvent.setup()
   render(<App initialState={createFinishedState()} />)
@@ -290,6 +383,19 @@ test('renders the finished victory overlay and restarts the session', async () =
   expect(within(overlay).getByRole('button', { name: '再开一局' })).toBeInTheDocument()
 
   await user.click(within(overlay).getByRole('button', { name: '再开一局' }))
+
+  expect(screen.queryByRole('dialog', { name: '联赛结算' })).not.toBeInTheDocument()
+})
+
+test('focuses the victory action and closes it with Escape by restarting', async () => {
+  const user = userEvent.setup()
+  render(<App initialState={createFinishedState()} />)
+
+  const dialog = screen.getByRole('dialog', { name: '联赛结算' })
+  const restartButton = within(dialog).getByRole('button', { name: '再开一局' })
+  expect(restartButton).toHaveFocus()
+
+  await user.keyboard('{Escape}')
 
   expect(screen.queryByRole('dialog', { name: '联赛结算' })).not.toBeInTheDocument()
 })

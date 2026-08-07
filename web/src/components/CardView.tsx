@@ -25,12 +25,15 @@ interface CardViewProps {
 export default function CardView({ card, selected, selectCard, disabled = false }: CardViewProps) {
   const [imageFailed, setImageFailed] = useState(false)
   const costs = STANDARD_TOKEN_COLORS.filter((color) => card.cost[color] > 0)
+  const costLabel = costs.length > 0
+    ? costs.map((color) => `${COLOR_LABELS[color]} ${card.cost[color]}`).join('，')
+    : '免费'
 
   return (
     <button
       type="button"
       className={`card-view card-view--tier-${card.tier}${selected ? ' is-selected' : ''}`}
-      aria-label={`${card.name} 卡牌，等级 ${card.tier}，${card.points} 分`}
+      aria-label={`${card.name} 卡牌，等级 ${card.tier}，${card.points} 分，奖励 ${COLOR_LABELS[card.bonusType]}，费用 ${costLabel}`}
       aria-pressed={selected}
       disabled={disabled}
       onClick={() => selectCard(card.id)}

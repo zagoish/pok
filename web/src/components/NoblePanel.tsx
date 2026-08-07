@@ -1,6 +1,7 @@
 import { ASSET_PATHS } from '../data/assets'
 import { NOBLES } from '../data/nobles'
 import { STANDARD_TOKEN_COLORS, type GameState, type NobleId, type StandardTokenColor } from '../domain/model'
+import ModalShell from './ModalShell'
 
 const COLOR_LABELS: Record<StandardTokenColor, string> = {
   fire: '火',
@@ -77,8 +78,13 @@ export default function NoblePanel({ state, claimNoble }: NoblePanelProps) {
       </div>
 
       {state.pendingNobleIds.length > 0 ? (
-        <div className="choice-backdrop">
-          <div className="noble-choice" role="dialog" aria-modal="true" aria-labelledby="noble-choice-heading">
+        <ModalShell
+          open
+          onClose={() => undefined}
+          labelledBy="noble-choice-heading"
+          className="noble-choice"
+          backdropClassName="choice-backdrop"
+        >
             <span className="section-kicker">BONUS CLAIM / DECISION</span>
             <h2 id="noble-choice-heading">选择贵族</h2>
             <p>本次购买满足多个贵族条件。请选择一位，其他行动暂时锁定。</p>
@@ -89,10 +95,9 @@ export default function NoblePanel({ state, claimNoble }: NoblePanelProps) {
                   <strong>+{noble.points} 分</strong>
                   <span>选择</span>
                 </button>
-              ))}
-            </div>
-          </div>
-        </div>
+                ))}
+              </div>
+        </ModalShell>
       ) : null}
     </section>
   )
