@@ -33,14 +33,29 @@ export default function CardView({ card, selected, selectCard, disabled = false 
     <button
       type="button"
       className={`card-view card-view--tier-${card.tier}${selected ? ' is-selected' : ''}`}
+      data-tier={card.tier}
       aria-label={`${card.name} 卡牌，等级 ${card.tier}，${card.points} 分，奖励 ${COLOR_LABELS[card.bonusType]}，费用 ${costLabel}`}
       aria-pressed={selected}
       disabled={disabled}
       onClick={() => selectCard(card.id)}
     >
       <span className="card-view__topline">
-        <span className="card-view__tier">TIER {card.tier}</span>
-        <span className="card-view__points">{card.points} 分</span>
+        <span className="card-view__meta">
+          <span className="card-view__bonus" aria-hidden="true">
+            <span className={`token-dot token-dot--${card.bonusType} token-dot--bonus`} />
+          </span>
+          <span className="card-view__tier">
+            <span className={`pokeball pokeball--tier-${card.tier}`} aria-hidden="true" />
+            <span className="sr-only">等级 {card.tier}</span>
+          </span>
+        </span>
+        <span className="card-view__points" data-count={card.points} aria-hidden="true">
+          {card.points > 0
+            ? Array.from({ length: card.points }, (_, index) => (
+                <span key={index} className="pokeball pokeball--points" />
+              ))
+            : null}
+        </span>
       </span>
 
       <span className="card-view__art" aria-hidden="true">
@@ -56,10 +71,6 @@ export default function CardView({ card, selected, selectCard, disabled = false 
       </span>
 
       <span className="card-view__name">{card.name}</span>
-      <span className="card-view__bonus">
-        奖励 <span className={`token-dot token-dot--${card.bonusType}`} aria-hidden="true" />
-        {COLOR_LABELS[card.bonusType]}
-      </span>
 
       <span className="card-view__costs" aria-label="非零费用">
         {costs.length > 0 ? (

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { CARDS } from '../data/cards'
 import { getLegalActions } from '../domain/action-legality'
 import { totalTokens } from '../domain/inventory'
@@ -10,7 +10,7 @@ import {
   type GameState,
   type StandardTokenColor,
 } from '../domain/model'
-import TokenStack, { COLOR_LABELS, RAINBOW_LABEL } from './TokenStack'
+import TokenStack, { COLOR_LABELS, RAINBOW_LABEL, tokenStackHeight } from './TokenStack'
 
 interface ActionPanelProps {
   state: GameState
@@ -40,6 +40,44 @@ function TokenPill({ color, count }: { color: StandardTokenColor | 'rainbow'; co
       <span>{label}</span>
       <strong>{count}</strong>
     </span>
+  )
+}
+
+const MAX_VISIBLE_BANK_CHIPS = 8
+
+function BankStack({
+  color,
+  held,
+  bank,
+}: {
+  color: StandardTokenColor | 'rainbow'
+  held: number
+  bank: number
+}) {
+  const label = color === 'rainbow' ? RAINBOW_LABEL : COLOR_LABELS[color]
+  const height = tokenStackHeight(bank)
+  const chipCount = Math.min(Math.max(bank, 0), MAX_VISIBLE_BANK_CHIPS)
+  const style = { '--stack-height': `${height}px` } as CSSProperties
+
+  return (
+    <div
+      className={`token-stack token-stack--bank token-stack--${color}`}
+      style={style}
+      aria-label={`${label} · 持有 ${held} · 银行 ${bank}`}
+    >
+      <span className="token-stack__chips" aria-hidden="true">
+        {Array.from({ length: chipCount }, (_, index) => (
+          <span
+            key={index}
+            className="token-stack__chip"
+            style={{ bottom: `${index * 5}px`, left: `${(index % 2) * 4}px` }}
+          />
+        ))}
+      </span>
+      <span className="token-stack__label">{label}</span>
+      <strong className="token-stack__held">{bank}</strong>
+      <span className="token-stack__bank">银行 {bank}</span>
+    </div>
   )
 }
 
@@ -268,6 +306,27 @@ export default function ActionPanel({
             disabled={locked}
             onPick={() => setHint({ kind: 'error', text: '彩虹能量只能通过预留或购买获得' })}
           />
+        </div>
+        <div className="bank-group" role="group" aria-label="银行">
+          <div className="subsection-heading">
+            <h3>银行</h3>
+            <span>公共储备</span>
+          </div>
+          <div className="token-stack-row">
+            {STANDARD_TOKEN_COLORS.map((color) => (
+              <BankStack
+                key={color}
+                color={color}
+                held={human.tokens[color]}
+                bank={state.tokenBank[color]}
+              />
+            ))}
+            <BankStack
+              color="rainbow"
+              held={human.tokens.rainbow}
+              bank={state.tokenBank.rainbow}
+            />
+          </div>
         </div>
         {selection.length > 0 || hint ? (
           <div className="token-selection">

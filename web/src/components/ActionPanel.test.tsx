@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useState } from 'react'
 import { expect, test, vi } from 'vitest'
@@ -33,6 +33,18 @@ function stackName(color: string, held: number, bank: number): string {
     rainbow: '万能',
   }
   return `${labels[color]}徽章，持有 ${held}，银行 ${bank}`
+}
+
+function bankLabel(color: string, held: number, bank: number): string {
+  const labels: Record<string, string> = {
+    fire: '火',
+    water: '水',
+    grass: '草',
+    electric: '电',
+    psychic: '超能',
+    rainbow: '万能',
+  }
+  return `${labels[color]} · 持有 ${held} · 银行 ${bank}`
 }
 
 async function pickStacks(user: ReturnType<typeof userEvent.setup>, stacks: Array<[string, number, number]>) {
@@ -227,4 +239,55 @@ test('disables a stack whose bank color is empty', () => {
 
   expect(screen.getByRole('button', { name: stackName('fire', 0, 0) })).toBeDisabled()
   expect(screen.getByRole('button', { name: stackName('water', 0, 7) })).toBeEnabled()
+})
+
+test('renders a bank group with all six colors and their bank counts', () => {
+  const state = createInitialGame(123)
+  state.players[0] = {
+    ...state.players[0],
+    tokens: { ...state.players[0].tokens, fire: 2, water: 1 },
+  }
+  state.tokenBank = { ...state.tokenBank, fire: 4, water: 0 }
+
+  renderPanel(state)
+
+  const bank = screen.getByRole('group', { name: /银行/ })
+  expect(within(bank).getByLabelText(bankLabel('fire', 2, 4))).toBeInTheDocument()
+  expect(within(bank).getByLabelText(bankLabel('water', 1, 0))).toBeInTheDocument()
+  expect(within(bank).getByLabelText(bankLabel('grass', 0, 7))).toBeInTheDocument()
+  expect(within(bank).getByLabelText(bankLabel('electric', 0, 7))).toBeInTheDocument()
+  expect(within(bank).getByLabelText(bankLabel('psychic', 0, 7))).toBeInTheDocument()
+  expect(within(bank).getByLabelText(bankLabel('rainbow', 0, 5))).toBeInTheDocument()
+  expect(within(bank).queryAllByRole('button')).toHaveLength(0)
+})
+
+test('bank stacks are display-only: clicking them changes nothing and shows no hint', async () => {
+  const user = userEvent.setup()
+  const dispatch = vi.fn()
+  renderPanel(createInitialGame(123), dispatch)
+
+  const bank = screen.getByRole('group', { name: /银行/ })
+  await user.click(within(bank).getByLabelText(bankLabel('fire', 0, 7)))
+  await user.click(within(bank).getByLabelText(bankLabel('water', 0, 7)))
+  await user.click(within(bank).getByLabelText(bankLabel('fire', 0, 7)))
+
+  expect(screen.queryByRole('button', { name: /移除/ })).not.toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: '执行拿取' })).not.toBeInTheDocument()
+  expect(screen.queryByText(/已选择/)).not.toBeInTheDocument()
+  expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+  expect(dispatch).not.toHaveBeenCalled()
+})
+
+test('held stacks still form a selection after interacting with the bank group', async () => {
+  const user = userEvent.setup()
+  renderPanel(createInitialGame(123))
+
+  const bank = screen.getByRole('group', { name: /银行/ })
+  await user.click(within(bank).getByLabelText(bankLabel('fire', 0, 7)))
+
+  await user.click(screen.getByRole('button', { name: stackName('fire', 0, 7) }))
+  await user.click(screen.getByRole('button', { name: stackName('water', 0, 7) }))
+
+  expect(screen.getByRole('button', { name: /移除火徽章/ })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: /移除水徽章/ })).toBeInTheDocument()
 })
