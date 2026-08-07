@@ -2,6 +2,7 @@ import { act, renderHook } from '@testing-library/react'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import * as ai from '../ai/chooseAction'
 import type { Action, GameState } from '../domain/model'
+import { zeroTokenInventory } from '../domain/inventory'
 import { nextRandom } from '../domain/random'
 import { createInitialGame } from '../domain/setup'
 import { useGameSession } from './useGameSession'
@@ -189,6 +190,34 @@ test('does not schedule an ai timer for a supplied pending human noble choice', 
 
   expect(result.current.state).toBe(pendingState)
   expect(result.current.pendingNobleIds).toEqual(pendingState.pendingNobleIds)
+  expect(vi.getTimerCount()).toBe(0)
+
+  unmount()
+  expect(vi.getTimerCount()).toBe(0)
+})
+
+test('reports an ai action failure without changing state or scheduling another timer', () => {
+  const noLegalActionsState = structuredClone(createInitialGame(123))
+  noLegalActionsState.currentPlayerIndex = 1
+  noLegalActionsState.market = { 1: [], 2: [], 3: [] }
+  noLegalActionsState.decks = { 1: [], 2: [], 3: [] }
+  noLegalActionsState.tokenBank = zeroTokenInventory()
+  noLegalActionsState.players = noLegalActionsState.players.map((player) => ({
+    ...player,
+    reservedCards: [],
+  }))
+  const { result, unmount } = renderHook(() => useGameSession(123, noLegalActionsState))
+  const eventLogBefore = noLegalActionsState.eventLog
+
+  expect(vi.getTimerCount()).toBe(1)
+
+  act(() => {
+    vi.advanceTimersByTime(400)
+  })
+
+  expect(result.current.lastError?.code).toBe('AI_ACTION_FAILED')
+  expect(result.current.state).toBe(noLegalActionsState)
+  expect(result.current.state.eventLog).toBe(eventLogBefore)
   expect(vi.getTimerCount()).toBe(0)
 
   unmount()

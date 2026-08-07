@@ -113,8 +113,9 @@ export function useGameSession(seed = DEFAULT_SEED, initialState?: GameState): G
 
     let cancelled = false
     const timer = setTimeout(() => {
+      if (cancelled || aiTimerRef.current !== timer) return
+
       aiTimerRef.current = null
-      if (cancelled) return
 
       try {
         const action = chooseAiAction(session.state, currentPlayer.id)
