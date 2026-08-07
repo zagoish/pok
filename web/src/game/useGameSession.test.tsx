@@ -6,15 +6,6 @@ import { nextRandom } from '../domain/random'
 import { createInitialGame } from '../domain/setup'
 import { useGameSession } from './useGameSession'
 
-vi.mock('../domain/setup', async () => {
-  const actual = await vi.importActual<typeof import('../domain/setup')>('../domain/setup')
-
-  return {
-    ...actual,
-    createInitialGame: vi.fn(actual.createInitialGame),
-  }
-})
-
 const humanTokenAction: Action = {
   type: 'take-three-different',
   playerId: 'human',
@@ -22,27 +13,22 @@ const humanTokenAction: Action = {
 }
 
 function createPendingHumanState(): GameState {
-  const state = createInitialGame(123)
+  const state = structuredClone(createInitialGame(123))
 
-  return {
-    ...state,
-    players: state.players.map((player, index) =>
-      index === 0
-        ? {
-            ...player,
-            bonuses: {
-              fire: 4,
-              water: 4,
-              grass: 4,
-              electric: 4,
-              psychic: 4,
-            },
-          }
-        : player,
-    ),
-    pendingNobleIds: state.availableNobles.slice(0, 2),
-    pendingNoblePlayerId: 'human',
+  state.players[0] = {
+    ...state.players[0],
+    bonuses: {
+      fire: 4,
+      water: 4,
+      grass: 4,
+      electric: 4,
+      psychic: 4,
+    },
   }
+  state.pendingNobleIds = state.availableNobles.slice(0, 2)
+  state.pendingNoblePlayerId = 'human'
+
+  return state
 }
 
 beforeEach(() => {
@@ -120,10 +106,52 @@ test('preserves state and event-log identity when an action is illegal', () => {
   unmount()
 })
 
+test('preserves state and event-log identity when claiming a noble without a pending choice', () => {
+  const { result, unmount } = renderHook(() => useGameSession(123))
+  const stateBefore = result.current.state
+  const eventLogBefore = stateBefore.eventLog
+
+  act(() => {
+    result.current.claimNoble('noble-001')
+  })
+
+  expect(result.current.state).toBe(stateBefore)
+  expect(result.current.state.eventLog).toBe(eventLogBefore)
+  expect(result.current.lastError).toEqual({
+    code: 'NO_PENDING_NOBLE',
+    message: 'This player has no pending noble choice.',
+  })
+
+  unmount()
+})
+
+test('clears the last error after a later legal human action succeeds', () => {
+  const { result, unmount } = renderHook(() => useGameSession(123))
+  const illegalAction: Action = {
+    type: 'take-three-different',
+    playerId: 'human',
+    colors: ['fire', 'fire', 'water'],
+  }
+
+  act(() => {
+    result.current.dispatch(illegalAction)
+  })
+  expect(result.current.lastError?.code).toBe('DUPLICATE_COLORS')
+
+  act(() => {
+    result.current.dispatch(humanTokenAction)
+  })
+
+  expect(result.current.state.players[0].tokens).toMatchObject({ fire: 1, water: 1, grass: 1 })
+  expect(result.current.state.currentPlayerIndex).toBe(1)
+  expect(result.current.lastError).toBeNull()
+
+  unmount()
+})
+
 test('claims a pending human noble and advances exactly once', () => {
   const pendingState = createPendingHumanState()
-  vi.mocked(createInitialGame).mockReturnValueOnce(pendingState)
-  const { result, unmount } = renderHook(() => useGameSession(123))
+  const { result, unmount } = renderHook(() => useGameSession(123, pendingState))
   const nobleId = pendingState.pendingNobleIds[0]
 
   expect(result.current.pendingNobleIds).toEqual(pendingState.pendingNobleIds)
@@ -139,6 +167,32 @@ test('claims a pending human noble and advances exactly once', () => {
   expect(result.current.lastError).toBeNull()
 
   unmount()
+})
+
+test('does not schedule an ai timer for a supplied finished state', () => {
+  const finishedState = structuredClone(createInitialGame(123))
+  finishedState.phase = 'finished'
+  finishedState.currentPlayerIndex = 1
+  finishedState.winnerIds = ['human']
+  const { result, unmount } = renderHook(() => useGameSession(123, finishedState))
+
+  expect(result.current.state).toBe(finishedState)
+  expect(vi.getTimerCount()).toBe(0)
+
+  unmount()
+  expect(vi.getTimerCount()).toBe(0)
+})
+
+test('does not schedule an ai timer for a supplied pending human noble choice', () => {
+  const pendingState = createPendingHumanState()
+  const { result, unmount } = renderHook(() => useGameSession(123, pendingState))
+
+  expect(result.current.state).toBe(pendingState)
+  expect(result.current.pendingNobleIds).toEqual(pendingState.pendingNobleIds)
+  expect(vi.getTimerCount()).toBe(0)
+
+  unmount()
+  expect(vi.getTimerCount()).toBe(0)
 })
 
 test('runs one ai action per timer and progresses through the fixed turn order', () => {

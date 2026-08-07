@@ -22,12 +22,21 @@ type SessionAction =
   | { type: 'restart' }
   | { type: 'set-error'; error: RuleError }
 
-function createSession(seed: number): SessionState {
+function createSession(seed: number, initialState?: GameState): SessionState {
   return {
-    state: createInitialGame(seed),
+    state: initialState ?? createInitialGame(seed),
     selectedCardId: null,
     lastError: null,
   }
+}
+
+interface SessionInitializer {
+  seed: number
+  initialState?: GameState
+}
+
+function initializeSession({ seed, initialState }: SessionInitializer): SessionState {
+  return createSession(seed, initialState)
 }
 
 function sessionReducer(session: SessionState, action: SessionAction): SessionState {
@@ -74,8 +83,12 @@ export interface GameSession {
   pendingNobleIds: NobleId[]
 }
 
-export function useGameSession(seed = DEFAULT_SEED): GameSession {
-  const [session, updateSession] = useReducer(sessionReducer, seed, createSession)
+export function useGameSession(seed = DEFAULT_SEED, initialState?: GameState): GameSession {
+  const [session, updateSession] = useReducer(
+    sessionReducer,
+    { seed, initialState },
+    initializeSession,
+  )
   const aiTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const clearAiTimer = () => {
