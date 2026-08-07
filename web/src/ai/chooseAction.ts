@@ -239,8 +239,15 @@ export function chooseAiAction(state: GameState, playerId: PlayerId): Action {
     throw new Error(`NO_LEGAL_ACTIONS: no legal actions for ${playerId}`)
   }
 
-  const noblePurchases = legalActions.filter((action) => claimsNobleImmediately(state, action, playerId))
-  if (noblePurchases.length > 0) return chooseFromTies(noblePurchases, state.randomSeed)
+  const noblePurchases: Array<{ value: Action; score: Score }> = []
+  for (const action of legalActions) {
+    if (action.type !== 'buy-card') continue
+    if (!claimsNobleImmediately(state, action, playerId)) continue
+    const card = findCard(action.cardId)
+    if (card) noblePurchases.push({ value: action, score: purchaseScore(state, playerId, card) })
+  }
+  const noblePurchase = chooseBest(noblePurchases, state.randomSeed)
+  if (noblePurchase) return noblePurchase
 
   const purchases: Array<{ value: Action; score: Score }> = []
   for (const action of legalActions) {

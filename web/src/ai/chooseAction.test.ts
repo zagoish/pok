@@ -73,6 +73,53 @@ test('returns a legal action for every AI player in the initial position', () =>
   }
 })
 
+test('ranks noble-triggering purchases before seeded tie-breaking', () => {
+  let state = baseState()
+  state = withMarket(state, 1, ['tier-1-025', 'tier-1-029'])
+  state = {
+    ...state,
+    currentPlayerIndex: 1,
+    availableNobles: ['noble-002'],
+    randomSeed: 0,
+  }
+  state = withPlayer(state, 1, {
+    bonuses: { fire: 2, water: 3, grass: 3 },
+    tokens: { electric: 4 },
+  })
+
+  const legalActions = getLegalActions(state, 'ai-1')
+  expect(legalActions).toContainEqual({
+    type: 'buy-card',
+    playerId: 'ai-1',
+    cardId: 'tier-1-025',
+    source: 'market',
+  })
+  expect(legalActions).toContainEqual({
+    type: 'buy-card',
+    playerId: 'ai-1',
+    cardId: 'tier-1-029',
+    source: 'market',
+  })
+
+  const noblePurchaseActions: Action[] = [
+    { type: 'buy-card', playerId: 'ai-1', cardId: 'tier-1-025', source: 'market' },
+    { type: 'buy-card', playerId: 'ai-1', cardId: 'tier-1-029', source: 'market' },
+  ]
+  for (const purchaseAction of noblePurchaseActions) {
+    const nextState = expectSuccessfulAction(state, purchaseAction)
+    expect(nextState.players[1].nobles).toEqual(['noble-002'])
+  }
+
+  const action = chooseAiAction(state, 'ai-1')
+
+  expect(action).toEqual({
+    type: 'buy-card',
+    playerId: 'ai-1',
+    cardId: 'tier-1-029',
+    source: 'market',
+  })
+})
+
 test('chooses an immediate noble purchase over a more valuable ordinary purchase', () => {
   let state = baseState()
   state = withMarket(state, 1, ['tier-1-025', 'tier-1-005'])
