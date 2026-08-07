@@ -538,22 +538,48 @@ test('renders the noble strip above the market region in DOM order', () => {
   expect(headings.indexOf(nobleHeading)).toBeLessThan(headings.indexOf(marketHeading))
 })
 
-test('player rail shows only name, points, and six token counts', () => {
+test('labels noble requirement chips with the color name and value in the accessible name', () => {
+  const state = structuredClone(createInitialGame(123))
+  const noble = NOBLES.find((candidate) => candidate.id === state.availableNobles[0])
+  if (!noble) throw new Error('Missing available noble')
+
+  render(<App initialState={state} />)
+
+  const panel = screen.getByRole('region', { name: '贵族训练家' })
+  const colorLabels: Record<string, string> = {
+    fire: '火',
+    water: '水',
+    grass: '草',
+    electric: '电',
+    psychic: '超能',
+  }
+
+  for (const [color, value] of Object.entries(noble.requirement)) {
+    if (value === 0) continue
+    const chips = within(panel).getAllByRole('img', { name: `${colorLabels[color]} ${value}` })
+    expect(chips.length).toBeGreaterThan(0)
+  }
+})
+
+test('player rail shows name, points, compact counters, and six token counts', () => {
   const state = structuredClone(createInitialGame(123))
   state.players[0] = {
     ...state.players[0],
     points: 7,
+    purchasedCards: ['tier-1-001'],
+    nobles: ['noble-001'],
     tokens: { fire: 3, water: 2, grass: 1, electric: 4, psychic: 0, rainbow: 1 },
   }
 
   render(<App initialState={state} />)
 
   const rail = screen.getByRole('region', { name: '训练家进度' })
-  const humanCard = rail.querySelector('.player-card.is-human')
+  const humanCard = rail.querySelector<HTMLElement>('.player-card.is-human')
   if (!humanCard) throw new Error('Missing human player card')
 
   expect(within(rail).getByText('玩家')).toBeInTheDocument()
   expect(within(rail).getByText('7')).toBeInTheDocument()
+  expect(within(humanCard).getByText('卡 1 · 贵 1')).toBeInTheDocument()
   expect(humanCard.querySelectorAll('.token-count')).toHaveLength(6)
   expect(humanCard.querySelector('.token-count--fire strong')?.textContent).toBe('3')
   expect(humanCard.querySelector('.token-count--water strong')?.textContent).toBe('2')
@@ -565,6 +591,37 @@ test('player rail shows only name, points, and six token counts', () => {
   expect(within(rail).queryByText(/预留卡/)).not.toBeInTheDocument()
   expect(within(rail).queryByText(/代币总数/)).not.toBeInTheDocument()
   expect(within(rail).queryByText(/贵族：/)).not.toBeInTheDocument()
+})
+
+test('player rail renders compact progress counters for all four players', () => {
+  const state = structuredClone(createInitialGame(123))
+  state.players[0] = {
+    ...state.players[0],
+    purchasedCards: ['tier-1-001'],
+    nobles: ['noble-001', 'noble-002'],
+  }
+  state.players[1] = {
+    ...state.players[1],
+    purchasedCards: ['tier-1-001', 'tier-1-002'],
+    nobles: ['noble-003'],
+  }
+  state.players[2] = {
+    ...state.players[2],
+    purchasedCards: ['tier-1-001', 'tier-1-002', 'tier-1-003'],
+    nobles: [],
+  }
+  state.players[3] = { ...state.players[3], purchasedCards: [], nobles: [] }
+
+  render(<App initialState={state} />)
+
+  const rail = screen.getByRole('region', { name: '训练家进度' })
+  const cards = Array.from(rail.querySelectorAll<HTMLElement>('.player-card'))
+
+  expect(cards).toHaveLength(4)
+  expect(within(cards[0]).getByText('卡 1 · 贵 2')).toBeInTheDocument()
+  expect(within(cards[1]).getByText('卡 2 · 贵 1')).toBeInTheDocument()
+  expect(within(cards[2]).getByText('卡 3 · 贵 0')).toBeInTheDocument()
+  expect(within(cards[3]).getByText('卡 0 · 贵 0')).toBeInTheDocument()
 })
 
 test('shows the human purchased Pokemon cards and all five permanent bonus counts', () => {

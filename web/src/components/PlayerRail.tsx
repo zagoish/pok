@@ -17,7 +17,7 @@ interface PlayerRailProps {
 export default function PlayerRail({ state }: PlayerRailProps) {
   return (
     <section className="player-rail" role="region" aria-labelledby="player-rail-heading">
-      <div className="section-heading section-heading--rail">
+      <div className="section-heading section-heading--compact">
         <div>
           <span className="section-kicker">LEAGUE TABLE / 00</span>
           <h2 id="player-rail-heading">训练家进度</h2>
@@ -46,6 +46,10 @@ export default function PlayerRail({ state }: PlayerRailProps) {
                 <strong>{player.points}</strong>
                 <span>积分</span>
               </div>
+
+              <p className="player-card__progress">
+                {`卡 ${player.purchasedCards.length} · 贵 ${player.nobles.length}`}
+              </p>
 
               <div className="token-strip" aria-label={`${player.name} 的代币`}>
                 {TOKEN_COLORS.map((color) => (

@@ -123,9 +123,14 @@ export default function NoblePanel({ state, claimNoble }: NoblePanelProps) {
               </div>
               <div className="requirement-row">
                 {requirementText(noble.id).map((requirement) => (
-                  <span key={requirement.color} className={`requirement-chip requirement-chip--${requirement.color}`}>
+                  <span
+                    key={requirement.color}
+                    className={`requirement-chip requirement-chip--${requirement.color}`}
+                    role="img"
+                    aria-label={`${requirement.label} ${requirement.value}`}
+                  >
                     <span className="token-dot" aria-hidden="true" />
-                    <span aria-label={`${requirement.label} ${requirement.value}`}>{requirement.value}</span>
+                    {requirement.value}
                   </span>
                 ))}
               </div>

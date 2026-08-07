@@ -277,14 +277,6 @@
   font-size: 18px;
 }
 
-.section-heading--rail {
-  padding: 10px 13px 9px;
-}
-
-.section-heading--rail h2 {
-  font-size: 18px;
-}
-
 .section-note,
 .section-heading--compact > span,
 .noble-panel__count,
@@ -410,6 +402,14 @@
 .player-card__scoreline span {
   color: var(--ink-3);
   font-size: 10px;
+}
+
+.player-card__progress {
+  margin: -3px 0 8px;
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.04em;
 }
 
 .token-strip {
@@ -1951,10 +1951,6 @@ button.purchased-card:disabled {
 
   .top-bar__stat--turn {
     min-width: 78px;
-  }
-
-  .player-card {
-    padding: 9px;
   }
 
   .card-view,
